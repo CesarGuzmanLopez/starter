@@ -75,3 +75,9 @@ if neotest_ok then
   map("n", "<leader>to", function() neotest.output_panel.toggle() end, { desc = "Test: toggle output" })
   map("n", "<leader>td", function() neotest.run.run { strategy = "dap" } end, { desc = "Test: debug nearest" })
 end
+
+-------------------------------
+-- Window splits
+-------------------------------
+map("n", "<leader>ws", "<cmd>split<cr>", { desc = "Split window horizontal" })
+map("n", "<leader>wv", "<cmd>vsplit<cr>", { desc = "Split window vertical" })
