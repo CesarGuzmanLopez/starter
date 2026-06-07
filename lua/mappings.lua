@@ -10,6 +10,26 @@ map("i", "jk", "<ESC>")
 -- map({ "n", "i", "v" }, "<C-s>", "<cmd> w <cr>")
 
 -------------------------------
+-- Telescope git (safe wrappers)
+-------------------------------
+local telescope_ok, telescope = pcall(require, "telescope.builtin")
+if telescope_ok then
+  local function in_git_repo(fn)
+    return function()
+      local root = vim.fn.system("git rev-parse --show-toplevel 2>/dev/null"):gsub("\n", "")
+      if vim.v.shell_error ~= 0 then
+        vim.notify("Not a git repository", vim.log.levels.WARN)
+        return
+      end
+      fn({ cwd = root })
+    end
+  end
+
+  map("n", "<leader>gt", in_git_repo(telescope.git_status), { desc = "Telescope git status" })
+  map("n", "<leader>cm", in_git_repo(telescope.git_commits), { desc = "Telescope git commits" })
+end
+
+-------------------------------
 -- Debugging (nvim-dap)
 -------------------------------
 local dap_ok, dap = pcall(require, "dap")
