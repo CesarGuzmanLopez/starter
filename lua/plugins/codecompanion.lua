@@ -54,6 +54,10 @@ return {
                       data.output.content = nil
                     end
                   end
+                  -- Strip tool calls from response (endpoint doesn't support them)
+                  if data.output and data.output.tool_calls then
+                    data.output.tool_calls = nil
+                  end
                   return data
                 end,
               },
@@ -65,9 +69,13 @@ return {
         chat = {
           adapter = "guzman",
           tools = {
-            opts = {
-              default_tools = {},
-            },
+            grep_search = { enabled = true },
+            file_search = { enabled = true },
+            read_file = { enabled = true },
+            insert_edit_into_file = { enabled = true },
+            run_command = { enabled = false },
+            web_search = { enabled = false },
+            fetch_webpage = { enabled = false },
           },
         },
         inline = { adapter = "guzman" },
