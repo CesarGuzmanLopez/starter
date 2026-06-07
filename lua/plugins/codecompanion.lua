@@ -53,6 +53,12 @@ return {
         chat = { adapter = "guzman" },
         inline = { adapter = "guzman" },
       },
+      display = {
+        chat = {
+          show_reasoning = false,
+          fold_reasoning = false,
+        },
+      },
       strategies = {
         chat = {
           tools = {
