@@ -37,7 +37,7 @@ if dap_ok then
   -- Breakpoints
   map("n", "<leader>db", function() dap.toggle_breakpoint() end, { desc = "DAP toggle breakpoint" })
   map("n", "<leader>dB", function() dap.set_breakpoint(vim.fn.input "Condition: ") end, { desc = "DAP conditional breakpoint" })
-  map("n", "<leader>dc", function() dap.clear_breakpoints() end, { desc = "DAP clear breakpoints" })
+  map("n", "<leader>dC", function() dap.clear_breakpoints() end, { desc = "DAP clear breakpoints" })
 
   -- Continue / step
   map("n", "<leader>dc", function() dap.continue() end, { desc = "DAP continue" })
