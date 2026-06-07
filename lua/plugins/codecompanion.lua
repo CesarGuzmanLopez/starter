@@ -45,29 +45,37 @@ return {
                   default = 0.1,
                 },
               },
+              handlers = {
+                parse_message_meta = function(self, data)
+                  local extra = data.extra
+                  if extra and extra.reasoning_content then
+                    data.output.reasoning = { content = extra.reasoning_content }
+                    if data.output.content == "" then
+                      data.output.content = nil
+                    end
+                  end
+                  return data
+                end,
+              },
             })
           end,
         },
       },
       interactions = {
-        chat = { adapter = "guzman" },
+        chat = {
+          adapter = "guzman",
+          tools = {
+            opts = {
+              default_tools = {},
+            },
+          },
+        },
         inline = { adapter = "guzman" },
       },
       display = {
         chat = {
           show_reasoning = false,
           fold_reasoning = false,
-        },
-      },
-      strategies = {
-        chat = {
-          tools = {
-            grep_search = { enabled = true },
-            file_search = { enabled = true },
-            read_file = { enabled = true },
-            insert_edit_into_file = { enabled = true },
-            run_command = { enabled = false },
-          },
         },
       },
     })
