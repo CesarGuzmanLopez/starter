@@ -70,7 +70,7 @@ return {
         name = "Launch file",
         program = "${file}",
         pythonPath = function()
-          return "/usr/bin/python3"
+          return vim.fn.exepath "python3"
         end,
       },
     },

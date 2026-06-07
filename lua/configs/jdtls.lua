@@ -7,6 +7,26 @@ M.setup = function()
   local launcher = vim.fn.glob(jdtls_path .. "/plugins/org.eclipse.equinox.launcher_*.jar")
   local config_linux = jdtls_path .. "/config_linux"
 
+  local function find_jdk(version)
+    local candidates = {
+      "/usr/lib/jvm/java-" .. version .. "-openjdk",
+      "/usr/lib/jvm/java-" .. version .. "-openjdk-amd64",
+      "/usr/lib/jvm/java-" .. version,
+      "/Library/Java/JavaVirtualMachines/jdk-" .. version .. ".jdk/Contents/Home",
+      os.getenv "JAVA_HOME",
+    }
+    for _, path in ipairs(candidates) do
+      if path and vim.fn.isdirectory(path) == 1 then
+        return path
+      end
+    end
+    return nil
+  end
+
+  local jdk22 = find_jdk "22"
+  local jdk21 = find_jdk "21"
+  local jdk17 = find_jdk "17"
+
   local bundles = {}
   -- Kotlin support via kotlin-language-server
   local kotlin_lsp = vim.fn.glob(home .. "/.local/share/kotlin-language-server/bin/kotlin-language-server")
@@ -39,9 +59,6 @@ M.setup = function()
       "-Declipse.application=org.eclipse.jdt.ls.core.id1",
       "-Dosgi.bundles.defaultStartLevel=4",
       "-Declipse.product=org.eclipse.jdt.ls.core.product",
-      "-Djava.configuration.runtimes.JAVA_22=/usr/lib/jvm/java-22-openjdk",
-      "-Djava.configuration.runtimes.JAVA_17=/usr/lib/jvm/java-17-openjdk",
-      "-Djava.configuration.runtimes.JAVA_21=/usr/lib/jvm/java-21-openjdk",
       "-jar",
       launcher,
       "-configuration",
@@ -62,12 +79,7 @@ M.setup = function()
       java = {
         configuration = {
           updateBuildConfiguration = "interactive",
-          runtimes = {
-            {
-              name = "JavaSE-22",
-              path = "/usr/lib/jvm/java-22-openjdk/",
-            },
-          },
+          runtimes = {},
         },
         maven = {
           downloadSources = true,
@@ -109,6 +121,22 @@ M.setup = function()
       bundles = bundles,
     },
   }
+
+  -- Insert detected JDK runtime args into cmd
+  local runtime_args = {}
+  if jdk22 then table.insert(runtime_args, "-Djava.configuration.runtimes.JAVA_22=" .. jdk22) end
+  if jdk21 then table.insert(runtime_args, "-Djava.configuration.runtimes.JAVA_21=" .. jdk21) end
+  if jdk17 then table.insert(runtime_args, "-Djava.configuration.runtimes.JAVA_17=" .. jdk17) end
+  for i, arg in ipairs(runtime_args) do
+    table.insert(config.cmd, 5 + i, arg)
+  end
+
+  -- Populate runtimes from detected JDKs
+  local runtimes = {}
+  if jdk22 then table.insert(runtimes, { name = "JavaSE-22", path = jdk22 .. "/" }) end
+  if jdk21 then table.insert(runtimes, { name = "JavaSE-21", path = jdk21 .. "/" }) end
+  if jdk17 then table.insert(runtimes, { name = "JavaSE-17", path = jdk17 .. "/" }) end
+  config.settings.java.configuration.runtimes = runtimes
 
   jdtls.start_or_attach(config)
 end

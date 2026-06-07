@@ -22,7 +22,14 @@ return {
 
   provider_options = {
     openai_compatible = {
-      api_key = function() return "REDACTED_API_KEY" end,
+      api_key = function()
+        local key = os.getenv "MINUET_API_KEY"
+        if not key then
+          vim.notify("Set MINUET_API_KEY env var for AI completion", vim.log.levels.WARN)
+          return ""
+        end
+        return key
+      end,
       name = "Guzman Lopez",
       end_point = "https://llm.guzman-lopez.com/v1/chat/completions",
       model = "flash",

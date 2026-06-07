@@ -19,5 +19,9 @@ plugin/
 # luarocks
 .local/
 
+# Secrets / env
+.env
+.env.local
+
 # OS
 .DS_Store
