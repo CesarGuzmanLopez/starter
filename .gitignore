@@ -1,0 +1,23 @@
+# Node.js
+node_modules/
+package-lock.json
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Rust
+target/
+
+# Neovim
+plugin/
+
+# jdtls workspace
+.cache/jdtls/
+
+# luarocks
+.local/
+
+# OS
+.DS_Store
