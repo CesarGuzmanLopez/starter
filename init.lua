@@ -35,3 +35,6 @@ require "autocmds"
 vim.schedule(function()
   require "mappings"
 end)
+
+-- Expose Neovim socket for MCP Neovim Server (opencode ↔ Neovim)
+vim.fn.serverstart("/tmp/nvim")

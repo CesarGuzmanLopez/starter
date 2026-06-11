@@ -81,3 +81,4 @@ end
 -------------------------------
 map("n", "<leader>ws", "<cmd>split<cr>", { desc = "Split window horizontal" })
 map("n", "<leader>wv", "<cmd>vsplit<cr>", { desc = "Split window vertical" })
+

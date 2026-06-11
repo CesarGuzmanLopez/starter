@@ -6,7 +6,8 @@
 local M = {}
 
 M.base46 = {
-	theme = "onedark",
+	theme = "catppuccin",
+	transparency = true,
 
 	-- hl_override = {
 	-- 	Comment = { italic = true },
@@ -14,11 +15,38 @@ M.base46 = {
 	-- },
 }
 
--- M.nvdash = { load_on_startup = true }
--- M.ui = {
---       tabufline = {
---          lazyload = false
---      }
--- }
+-- NvChad custom statusline with opencode integration
+M.ui = {
+	statusline = {
+		theme = "default",
+		modules = {
+			opencode = function()
+				local ok, status = pcall(require, "opencode.status")
+				if ok then
+					local icon = status.icon()
+					local text = status.statusline()
+					if icon == "󱚧" then
+						return "" -- disconnected, hide
+					end
+					return " " .. text .. " "
+				end
+				return ""
+			end,
+		},
+		order = {
+			"mode",
+			"file",
+			"git",
+			"opencode",
+			"%=",
+			"lsp_msg",
+			"%=",
+			"diagnostics",
+			"lsp",
+			"cwd",
+			"cursor",
+		},
+	},
+}
 
 return M
