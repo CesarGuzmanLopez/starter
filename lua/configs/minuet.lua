@@ -38,6 +38,12 @@ return {
         max_tokens = 256,
         top_p = 0.9,
         reasoning_effort = "none",
+        reasoning = { enabled = false },
+      },
+      model_options = {
+        flash = {
+          reasoning = { enabled = false },
+        },
       },
       system = mc.default_system,
       few_shots = mc.default_few_shots,
