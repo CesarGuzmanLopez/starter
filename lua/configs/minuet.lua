@@ -3,7 +3,7 @@ local mc = require "minuet.config"
 return {
   provider = "openai_compatible",
   context_window = 8192,
-  request_timeout = 3,
+  request_timeout = 10,
   throttle = 1500,
   debounce = 600,
   notify = "warn",
@@ -32,16 +32,21 @@ return {
       end,
       name = "Guzman Lopez",
       end_point = "https://llm.guzman-lopez.com/v1/chat/completions",
-      model = "flash",
+      model = "deepseek-v4-flash",
       stream = true,
       optional = {
         max_tokens = 256,
         top_p = 0.9,
+        temperature = 0.1,
         reasoning_effort = "none",
         reasoning = { enabled = false },
+        include_reasoning = false,
       },
       model_options = {
-        flash = {
+        ["deepseek-v4-flash"] = {
+          reasoning = { enabled = false },
+        },
+        ["openai/gpt-oss-120b"] = {
           reasoning = { enabled = false },
         },
       },
