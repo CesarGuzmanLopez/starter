@@ -70,19 +70,30 @@ return {
     end,
   },
 
-  -- AI code completion
+  -- AI code completion (Codeium)
   {
-    "milanglacier/minuet-ai.nvim",
+    "Exafunction/codeium.nvim",
     event = "InsertEnter",
     config = function()
-      require("minuet").setup(require "configs.minuet")
-
-      local cmp_ok, cmp = pcall(require, "cmp")
-      if cmp_ok then
-        local cmp_config = cmp.get_config()
-        table.insert(cmp_config.sources, 1, { name = "minuet" })
-        cmp.setup(cmp_config)
-      end
+      require("codeium").setup({
+        enable_cmp_source = true,
+        virtual_text = {
+          enabled = true,
+          manual = false,
+          filetypes = {},
+          default_filetype_enabled = true,
+          idle_delay = 75,
+          virtual_text_priority = 65535,
+          map_keys = {
+            accept = "<A-A>",
+            accept_line = "<A-a>",
+            accept_word = "<A-w>",
+            next = "<A-]>",
+            prev = "<A-[>",
+            dismiss = "<A-e>",
+          },
+        },
+      })
     end,
   },
 
