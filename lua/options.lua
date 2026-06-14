@@ -1,6 +1,8 @@
 require "nvchad.options"
 
 -- add yours here!
+-- Use system clipboard
+vim.opt.clipboard = "unnamedplus"
 
 -- treesitter parsers install directory
 vim.opt.rtp:append(vim.fn.stdpath "data" .. "/site")

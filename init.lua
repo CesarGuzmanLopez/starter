@@ -26,8 +26,9 @@ require("lazy").setup({
 }, lazy_config)
 
 -- load theme
-dofile(vim.g.base46_cache .. "defaults")
-dofile(vim.g.base46_cache .. "statusline")
+local ok1, _ = pcall(dofile, vim.g.base46_cache .. "defaults")
+local ok2, _ = pcall(dofile, vim.g.base46_cache .. "statusline")
+-- base46 cache se regenera al abrir nvim con NvChad, no es crítico si falta
 
 require "options"
 require "autocmds"
@@ -37,4 +38,8 @@ vim.schedule(function()
 end)
 
 -- Expose Neovim socket for MCP Neovim Server (opencode ↔ Neovim)
-vim.fn.serverstart("/tmp/nvim")
+-- Si ya hay un servidor activo en el socket, solo avisa sin error
+local ok, err = pcall(vim.fn.serverstart, "/tmp/nvim")
+if not ok then
+  vim.notify("[init.lua] Servidor Neovim ya iniciado en /tmp/nvim", vim.log.levels.WARN)
+end

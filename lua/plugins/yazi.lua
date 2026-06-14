@@ -16,7 +16,7 @@ return {
     vim.g.loaded_netrwPlugin = 1
     vim.g.loaded_netrw = 1
   end,
-  opts = {
+    opts = {
     -- Abrir Yazi automáticamente al abrir un directorio (nvim .)
     open_for_directories = true,
     -- Cambiar el CWD de Neovim al cerrar Yazi
@@ -24,6 +24,6 @@ return {
     -- Tamaño del floating window
     floating_window_scaling_factor = 0.95,
     -- Abrir en ventana flotante centrada
-    open_file_in_same_window = false,
+    open_file_in_same_window = true,
   },
 }
