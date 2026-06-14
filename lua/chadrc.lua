@@ -9,10 +9,9 @@ M.base46 = {
 	theme = "wallust",
 	transparency = true,
 
-	-- hl_override = {
-	-- 	Comment = { italic = true },
-	-- 	["@comment"] = { italic = true },
-	-- },
+	hl_override = {
+		CursorLine = { bg = "#3a3a4a" },
+	},
 }
 
 -- NvChad custom statusline with opencode integration

@@ -47,6 +47,23 @@ vim.api.nvim_create_autocmd("FileChangedShell", {
   end,
 })
 
+-- Forzar CursorLine background al final de la carga (después de temas/plugins)
+vim.api.nvim_create_autocmd("VimEnter", {
+  group = vim.api.nvim_create_augroup("ForceCursorLine", { clear = true }),
+  callback = function()
+    vim.api.nvim_set_hl(0, "CursorLine", { bg = "#3a3a4a" })
+  end,
+  once = true,
+})
+
+-- Respaldar: Forzar CursorLine después de CUALQUIER cambio de colorscheme
+vim.api.nvim_create_autocmd("ColorScheme", {
+  group = vim.api.nvim_create_augroup("PersistCursorLine", { clear = true }),
+  callback = function()
+    vim.api.nvim_set_hl(0, "CursorLine", { bg = "#3a3a4a" })
+  end,
+})
+
 -- Image viewer: intercept image files and display with kitten icat in a floating window
 local image_group = vim.api.nvim_create_augroup("ImageViewer", { clear = true })
 
