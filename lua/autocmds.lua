@@ -49,18 +49,21 @@ vim.api.nvim_create_autocmd("FileChangedShell", {
 
 -- Forzar CursorLine background al final de la carga (después de temas/plugins)
 vim.api.nvim_create_autocmd("VimEnter", {
-  group = vim.api.nvim_create_augroup("ForceCursorLine", { clear = true }),
+  group = vim.api.nvim_create_augroup("ForceHighlights", { clear = true }),
   callback = function()
     vim.api.nvim_set_hl(0, "CursorLine", { bg = "#3a3a4a" })
+    -- Visual: invierte fg/bg sin usar bg del tema (nunca se mezcla)
+    vim.api.nvim_set_hl(0, "Visual", { reverse = true })
   end,
   once = true,
 })
 
--- Respaldar: Forzar CursorLine después de CUALQUIER cambio de colorscheme
+-- Respaldar: Forzar después de CUALQUIER cambio de colorscheme
 vim.api.nvim_create_autocmd("ColorScheme", {
-  group = vim.api.nvim_create_augroup("PersistCursorLine", { clear = true }),
+  group = vim.api.nvim_create_augroup("PersistHighlights", { clear = true }),
   callback = function()
     vim.api.nvim_set_hl(0, "CursorLine", { bg = "#3a3a4a" })
+    vim.api.nvim_set_hl(0, "Visual", { reverse = true })
   end,
 })
 
