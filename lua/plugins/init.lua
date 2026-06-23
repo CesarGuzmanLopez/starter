@@ -70,32 +70,33 @@ return {
     end,
   },
 
-  -- AI code completion (Codeium)
-  {
-    "Exafunction/codeium.nvim",
-    event = "InsertEnter",
-    config = function()
-      require("codeium").setup({
-        enable_cmp_source = true,
-        virtual_text = {
-          enabled = true,
-          manual = false,
-          filetypes = {},
-          default_filetype_enabled = true,
-          idle_delay = 75,
-          virtual_text_priority = 65535,
-          map_keys = {
-            accept = "<A-A>",
-            accept_line = "<A-a>",
-            accept_word = "<A-w>",
-            next = "<A-]>",
-            prev = "<A-[>",
-            dismiss = "<A-e>",
-          },
-        },
-      })
-    end,
-  },
+  -- AI code completion (Codeium) - disabled (requested login)
+  -- To re-enable: remove `enabled = false`, run :Codeium Auth, and restart
+  --{
+  --  "Exafunction/codeium.nvim",
+  --  event = "InsertEnter",
+  --  config = function()
+  --    require("codeium").setup({
+  --      enable_cmp_source = true,
+  --      virtual_text = {
+  --        enabled = true,
+  --        manual = false,
+  --        filetypes = {},
+  --        default_filetype_enabled = true,
+  --        idle_delay = 75,
+  --        virtual_text_priority = 65535,
+  --        map_keys = {
+  --          accept = "<A-A>",
+  --          accept_line = "<A-a>",
+  --          accept_word = "<A-w>",
+  --          next = "<A-]>",
+  --          prev = "<A-[>",
+  --          dismiss = "<A-e>",
+  --        },
+  --      },
+  --    })
+  --  end,
+  --},
 
   ---------------------------------------------------------------------------
   -- TIER 1: Debugging

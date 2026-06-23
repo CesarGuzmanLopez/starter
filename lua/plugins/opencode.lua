@@ -1,6 +1,19 @@
 return {
   "nickjvandyke/opencode.nvim",
   version = "*",
+  keys = {
+    { "<leader>oa", desc = "Ask opencode" },
+    { "<leader>ob", desc = "Ask opencode about buffer" },
+    { "<leader>os", desc = "OC: select server" },
+    { "<leader>oo", desc = "OpenCode: launch TUI" },
+    { "<leader>ons", desc = "OC: select prompt/command" },
+    { "<leader>onc", desc = "OC: compact session" },
+    { "<leader>onn", desc = "OC: new session" },
+    { "<leader>onl", desc = "OC: list sessions" },
+    { "<leader>oni", desc = "OC: interrupt session" },
+    { "<leader>onu", desc = "OC: undo last action" },
+    { "<leader>onr", desc = "OC: redo last undone" },
+  },
   config = function()
     ---@type opencode.Opts
     vim.g.opencode_opts = {
@@ -24,10 +37,22 @@ return {
       require("opencode").ask("@buffer: ")
     end, { desc = "Ask opencode about buffer" })
 
-    -- Open the prompt/command/server selector
+    -- Select / connect to a running opencode server
     map({ "n", "x" }, "<leader>os", function()
+      require("opencode").select({
+        prompts = false,
+        commands = false,
+        server = {
+          ["server.select"] = "Select server",
+          ["server.start"]  = "Start configured server",
+        },
+      })
+    end, { desc = "OC: select server" })
+
+    -- Full selector: prompts + commands + server
+    map({ "n", "x" }, "<leader>ons", function()
       require("opencode").select()
-    end, { desc = "Select opencode prompt" })
+    end, { desc = "OC: select prompt/command" })
 
     ------------------------------------------------------------
     -- Operator (motion / text-object support)
@@ -56,10 +81,6 @@ return {
     map("n", "<leader>onl", function()
       require("opencode").command("session.list")
     end, { desc = "OC: list sessions" })
-
-    map("n", "<leader>ons", function()
-      require("opencode").command("session.select")
-    end, { desc = "OC: select session" })
 
     map("n", "<leader>oni", function()
       require("opencode").command("session.interrupt")

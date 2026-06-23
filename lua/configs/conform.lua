@@ -14,6 +14,14 @@ local options = {
     markdown = { "prettierd" },
     kotlin = { "ktfmt" },
     java = { "google-java-format" },
+    qml = { "qmlformat" },
+  },
+
+  formatters = {
+    qmlformat = {
+      command = "qmlformat",
+      args = { "-i", "$FILENAME" },
+    },
   },
 
   format_on_save = {
