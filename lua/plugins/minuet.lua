@@ -3,6 +3,16 @@ return {
   version = "*",
   event = "InsertEnter",
   config = function()
+    local llm_url = os.getenv "CESAR_LLM_URL"
+    if not llm_url or llm_url == "" then
+      vim.notify(
+        "minuet: falta CESAR_LLM_URL en variables de entorno",
+        vim.log.levels.WARN,
+        { title = "minuet" }
+      )
+      return
+    end
+
     require("minuet").setup {
       provider = "openai_compatible",
       request_timeout = 3,
@@ -20,9 +30,8 @@ return {
       },
       provider_options = {
         openai_compatible = {
-          -- Minuet lee el NOMBRE de la env var, no el valor
           api_key = "CESAR_PROXY_KEY",
-          end_point = (os.getenv("CESAR_PROXY_URL") or "") .. "/chat/completions",
+          end_point = llm_url,
           model = "flash",
           name = "Proxy",
           optional = {
