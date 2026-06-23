@@ -26,7 +26,8 @@ return {
         auto_trigger_ft = { "*" },
         keymap = {
           accept = "<A-CR>",
-          accept_line = "<M-CR>s",
+          accept_line = "<A-n>",
+          next = "<A-y>",
           dismiss = "<C-]>",
         },
       },
@@ -44,9 +45,6 @@ return {
       },
     }
 
-    -- Registrar <A-y> para completado manual
-    vim.keymap.set("i", "<A-y>", function()
-      require("minuet").complete()
-    end, { desc = "Minuet: manual completion" })
+    -- <A-y> se maneja via keymap.next (trigger manual + ciclo sugerencias)
   end,
 }
