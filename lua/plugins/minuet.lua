@@ -15,7 +15,7 @@ return {
 
     require("minuet").setup {
       provider = "openai_compatible",
-      request_timeout = 3,
+      request_timeout = 8,
       debounce = 600,
       throttle = 1500,
       min_length = 3,
@@ -31,11 +31,12 @@ return {
       provider_options = {
         openai_compatible = {
           api_key = "CESAR_PROXY_KEY",
-          end_point = llm_url,
+          end_point = llm_url .. "/chat/completions",
           model = "flash",
           name = "Proxy",
+          stream = true,
           optional = {
-            max_tokens = 128,
+            max_tokens = 256,
             top_p = 0.9,
           },
         },

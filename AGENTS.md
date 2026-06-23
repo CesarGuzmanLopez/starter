@@ -389,6 +389,36 @@ Configurado en `lua/plugins/opencode.lua`. Usa Opencode AI como asistente.
 | `<leader>os` | Select server/modelo |
 | `<leader>on*` | Session management (new, list, interrupt, etc.) |
 
+### AI Completion (Minuet)
+
+Configurado en `lua/plugins/minuet.lua`. Autocompletado inline con LLM via proxy propio.
+
+| Accion | Tecla |
+|--------|-------|
+| Aceptar ghost text | `<A-CR>` (Alt+Enter) |
+| Siguiente sugerencia / forzar minuet | `<A-y>` (Alt+y) |
+| Descartar ghost text | `<C-]>` |
+
+- Se activa **automaticamente** al escribir 3+ caracteres (debounce 600ms, throttle 1.5s)
+- Filetype: todos (`auto_trigger_ft = { "*" }`)
+
+### Completado / Snippets (nvim-cmp + LuaSnip)
+
+Configurado por NvChad core. Menu contextual con completados de LSP, snippets, palabras del buffer, etc.
+
+| Accion | Tecla |
+|--------|-------|
+| Abrir menu de completado | `<C-Space>` |
+| Seleccionar siguiente item | `<C-n>` o `<Tab>` |
+| Seleccionar item anterior | `<C-p>` o `<S-Tab>` |
+| Confirmar seleccion | `<CR>` |
+| Cerrar menu | `<C-e>` |
+| Desplazar documentacion | `<C-f>` / `<C-d>` |
+| Expandir snippet / saltar placeholder | `<Tab>` (repetir para siguiente) |
+| Saltar placeholder anterior | `<S-Tab>` |
+
+**Fuentes de completado:** nvim_lsp, luasnip (friendly-snippets), buffer, nvim_lua, async_path
+
 ### Sesiones (persistence.nvim)
 
 Configurado en `lua/plugins/persistence.lua`. Guarda/restaura el estado de Neovim.
