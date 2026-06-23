@@ -1,6 +1,7 @@
 return {
   "milanglacier/minuet-ai.nvim",
   version = "*",
+  event = "InsertCharPre",
   keys = {
     { "<A-y>", desc = "Minuet: manual completion" },
   },
