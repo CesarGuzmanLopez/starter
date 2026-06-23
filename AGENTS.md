@@ -11,21 +11,27 @@ Guia basada en la configuracion real de este repo (NvChad v2.5 + lazy.nvim).
 ├── init.lua                    # Entry point: bootstrap lazy.nvim, carga NvChad
 ├── lua/
 │   ├── options.lua             # Opciones de Neovim (rtp, luarocks paths)
-│   ├── mappings.lua            # Atajos de teclado (globales)
-│   ├── autocmds.lua            # Autocomandos (auto-reload, image viewer)
+│   ├── mappings.lua            # Atajos de teclado (globales + desarrollo)
+│   ├── autocmds.lua            # Autocomandos (LSP warning, auto-reload, image viewer)
 │   ├── chadrc.lua              # Config de NvChad (ui, theme)
 │   ├── configs/                # Configs individuales de plugins
-│   │   ├── lspconfig.lua       # Servidores LSP
+│   │   ├── lspconfig.lua       # Servidores LSP (html, cssls, pyright, ts_ls, etc.)
 │   │   ├── conform.lua         # Formatters
-│   │   ├── lint.lua            # Linters
-│   │   ├── dap.lua             # Debugger
-│   │   ├── neotest.lua         # Testing
-│   │   ├── jdtls.lua           # Java/Kotlin LSP
-│   │   ├── image.lua           # Image.nvim
-│   │   └── minuet.lua          # AI completion
+│   │   ├── lint.lua            # Linters (ruff, mypy, etc.)
+│   │   ├── dap.lua             # Debugger (nvim-dap)
+│   │   ├── neotest.lua         # Testing (neotest)
+│   │   ├── jdtls.lua           # Java/Kotlin LSP (jdtls)
+│   │   ├── image.lua           # Image.nvim (view images in terminal)
+│   │   └── minuet.lua          # AI completion (Minuet)
 │   └── plugins/                # lazy.nvim auto-carga archivos .lua de aqui
-│       ├── init.lua            # Plugins principales (295 lineas)
-│       └── codecompanion.lua   # AI chat (ejemplo de plugin separado)
+│       ├── init.lua            # Plugins principales (295+ lineas)
+│       ├── opencode.lua        # Opencode AI (asistente, chat, sesiones)
+│       ├── persistence.lua     # Persistence.nvim (sesiones)
+│       ├── trouble.lua         # Trouble.nvim (diagnosticos, quickfix)
+│       ├── todo-comments.lua   # Todo-comments (Trouble + Telescope)
+│       ├── yazi.lua            # Yazi (explorador de archivos)
+│       ├── codecompanion.lua   # AI chat (CodeCompanion, opcional)
+│       └── ...                 # Otros plugins autocargados
 ├── .env.example                # Template de variables de entorno
 └── lazy-lock.json              # Versiones fijas de plugins
 ```
@@ -292,6 +298,141 @@ El `.env.example` documenta las variables requeridas pero no se carga automatica
 
 ---
 
+## Atajos de desarrollo (LSP)
+
+Estos atajos funcionan **buffer-local** (solo en buffers con un LSP activo). Se configuran en `lua/mappings.lua` via el autocmd `LspAttach`.
+
+### Navegacion de codigo
+
+| Atajo | Accion | Descripcion |
+|-------|--------|-------------|
+| `gd` | Ir a definicion | Salta a donde se define el simbolo bajo el cursor |
+| `gD` | Ir a declaracion | Salta a la declaracion del simbolo |
+| `gi` | Ir a implementacion | Salta a la implementacion del simbolo |
+| `gr` | Referencias | Lista todas las referencias del simbolo |
+| `K` | Hover / Documentacion | Muestra documentacion, firmas, tipos |
+| `<leader>D` | Ir a type definition | Salta a la definicion del tipo |
+| `<leader>cs` | Simbolos (Trouble) | Arbol de simbolos del documento (Trouble) |
+| `<leader>cl` | LSP references | Panel lateral de referencias (Trouble) |
+
+### Diagnosticos
+
+| Atajo | Accion | Descripcion |
+|-------|--------|-------------|
+| `[d` | Diagnostico anterior | Salta al error/warning anterior |
+| `]d` | Siguiente diagnostico | Salta al siguiente error/warning |
+| `<leader>ds` | Diagnostic loclist | Envia diagnosticos a la loclist |
+| `<leader>xx` | Troubles diagnostics | Panel de diagnosticos (Trouble) |
+| `<leader>xX` | Buffer diagnostics | Diagnosticos solo del buffer actual |
+| `<leader>ll` | Lint buffer | Ejecuta el linter manualmente |
+
+### Acciones de codigo
+
+| Atajo | Accion | Descripcion |
+|-------|--------|-------------|
+| `<leader>ca` | Code action | Muestra acciones disponibles (refactor, quickfix, etc.) |
+| `<leader>rn` | Renombrar | Renombra el simbolo bajo el cursor en todo el proyecto |
+| `<leader>ra` | Renombrar (NvChad) | Alternativa de rename (NvChad renamer) |
+| `<leader>fm` | Formatear | Formatea el archivo (via conform + lsp fallback) |
+
+### Navegacion por archivos
+
+| Atajo | Accion | Descripcion |
+|-------|--------|-------------|
+| `<leader>ff` | Find files | Busca archivos por nombre |
+| `<leader>fa` | Find all files | Busca incluyendo ocultos/ignorados |
+| `<leader>fw` | Live grep | Busca texto en todo el proyecto |
+| `<leader>fb` | Buffers | Cambia entre buffers abiertos |
+| `<leader>fo` | Oldfiles | Archivos recientes |
+| `<leader>fz` | Fuzzy find buffer | Busca texto dentro del buffer actual |
+| `<leader>e` | Yazi | Explorador de archivos (Yazi) |
+
+### Debugging (DAP)
+
+Configurado en `lua/mappings.lua`. Requiere `nvim-dap` y adaptadores instalados via `:Mason`.
+
+| Atajo | Accion |
+|-------|--------|
+| `<leader>db` | Toggle breakpoint |
+| `<leader>dB` | Breakpoint condicional |
+| `<leader>dC` | Limpiar breakpoints |
+| `<leader>dc` | Continue / iniciar debug |
+| `<leader>dn` | Step over |
+| `<leader>di` | Step into |
+| `<leader>do` | Step out |
+| `<leader>dr` | Toggle REPL |
+| `<leader>dl` | Run last |
+| `<leader>dt` | Terminar debug |
+| `<leader>du` | Toggle DAP UI |
+
+### Testing (neotest)
+
+Configurado en `lua/mappings.lua`. Soporta pytest, jest, unittest, etc.
+
+| Atajo | Accion |
+|-------|--------|
+| `<leader>tt` | Run test mas cercano |
+| `<leader>tf` | Run todo el archivo de tests |
+| `<leader>ts` | Toggle summary (panel de resultados) |
+| `<leader>to` | Toggle output panel |
+| `<leader>td` | Debug test mas cercano |
+
+### AI / Opencode
+
+Configurado en `lua/plugins/opencode.lua`. Usa Opencode AI como asistente.
+
+| Atajo | Accion |
+|-------|--------|
+| `<leader>oa` | Ask (seleccion/palabra bajo cursor) |
+| `<leader>ob` | Ask about buffer completo |
+| `<leader>oo` | Launch TUI (terminal vertical) |
+| `<leader>os` | Select server/modelo |
+| `<leader>on*` | Session management (new, list, interrupt, etc.) |
+
+### Sesiones (persistence.nvim)
+
+Configurado en `lua/plugins/persistence.lua`. Guarda/restaura el estado de Neovim.
+
+| Atajo | Accion |
+|-------|--------|
+| `<leader>qs` | Restaurar sesion |
+| `<leader>qS` | Seleccionar sesion |
+| `<leader>ql` | Restaurar ultima sesion |
+| `<leader>qd` | No guardar sesion actual |
+
+### Buffer / Cerrar
+
+| Atajo / Comando | Accion |
+|-----------------|--------|
+| `<leader>x` | Cerrar buffer actual (NvChad) |
+| `:Q` | Cerrar buffer actual. Si es el ultimo, cierra Neovim |
+| `:Q!` | Forzar cierre (sin guardar) |
+| `<leader>b` | Nuevo buffer vacio |
+
+---
+
+## Comando `:Q` — Cerrar buffer o salir
+
+Definido en `lua/mappings.lua`. Comportamiento:
+
+1. Cuenta los buffers **listados** (los que ves en la tabline).
+2. Si hay **mas de uno**: ejecuta `:bdelete` — cierra el buffer actual. Si estaba en un split, cierra el split. Si era el unico en una pestaña, cierra la pestaña.
+3. Si es el **unico buffer**: ejecuta `:q` — sale de Neovim.
+4. Con `:Q!` fuerza el cierre aunque haya cambios sin guardar.
+
+---
+
+## Aviso de LSP faltante
+
+Definido en `lua/autocmds.lua`. Al abrir un archivo cuyo filetype tiene un LSP configurado pero no se conecta, muestra una advertencia via `vim.notify`:
+
+- Si es Kotlin: mensaje especifico sobre la incompatibilidad con Neovim 0.12.
+- Otros: sugiere revisar `:Mason` y `lspconfig.lua`.
+
+La deteccion es **dinamica**: escanea `vim.lsp.config()` al inicio para saber que filetypes deberian tener LSP. Si agregas un nuevo servidor en `lspconfig.lua`, se incluye automaticamente.
+
+---
+
 ## Keymaps del chat buffer (CodeCompanion)
 
 Estos solo funcionan DENTRO del chat buffer, no globalmente:
@@ -322,6 +463,7 @@ Estos solo funcionan DENTRO del chat buffer, no globalmente:
 :Lazy                     " Ver plugins instalados, updates pendientes
 :Mason                    " Ver/instalar LSPs, linters, formatters
 :TSInstallInfo            " Ver parsers de treesitter
+:Q                        " Cerrar buffer actual (o salir si es el ultimo)
 :CodeCompanionChat        " Abrir chat AI
 :CodeCompanionActions     " Action palette
 :ConformInfo              " Ver formatters configurados

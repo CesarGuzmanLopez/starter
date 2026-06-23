@@ -91,6 +91,37 @@ end
 map("n", "<leader>ll", function() require("lint").try_lint() end, { desc = "Lint current buffer" })
 
 -------------------------------
+-- LSP keymaps de desarrollo (buffer-local)
+-------------------------------
+-- Se agregan via LspAttach para que solo existan en buffers con LSP.
+vim.api.nvim_create_autocmd("LspAttach", {
+  group = vim.api.nvim_create_augroup("UserLSPMappings", { clear = true }),
+  callback = function(args)
+    local buf = args.buf
+    local function bmap(mode, lhs, rhs, desc)
+      vim.keymap.set(mode, lhs, rhs, { buffer = buf, desc = "LSP " .. desc })
+    end
+
+    -- Navegacion: definicion, hover, referencias
+    bmap("n", "K", vim.lsp.buf.hover, "Hover documentation")
+    bmap("n", "gr", vim.lsp.buf.references, "References")
+    bmap("n", "gi", vim.lsp.buf.implementation, "Go to implementation")
+
+    -- Diagnosticos: navegar entre errores/warnings
+    bmap("n", "[d", vim.diagnostic.goto_prev, "Previous diagnostic")
+    bmap("n", "]d", vim.diagnostic.goto_next, "Next diagnostic")
+
+    -- Acciones: code action y rename
+    bmap({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, "Code action")
+    bmap("n", "<leader>rn", function()
+      vim.ui.input({ prompt = "Rename to: ", default = vim.fn.expand "<cword>" }, function(new_name)
+        if new_name then vim.lsp.buf.rename(new_name) end
+      end)
+    end, "Rename symbol")
+  end,
+})
+
+-------------------------------
 -- Testing (neotest)
 -------------------------------
 local neotest_ok, neotest = pcall(require, "neotest")
