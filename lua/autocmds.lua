@@ -1,5 +1,70 @@
 require "nvchad.autocmds"
 
+----------------------------------------------------------
+-- Aviso general: archivos que deberian tener LSP pero no
+----------------------------------------------------------
+-- Construye dinamicamente el conjunto de filetypes que tienen LSP
+-- configurado (via vim.lsp.enable o lspconfig), mas unos extras
+-- para servidores propositadamente desactivados (ej: kotlin).
+local function get_lsp_filetypes()
+  local ft = {}
+
+  -- 1) Extraer filetypes de las configs LSP registradas (Nvim >= 0.11)
+  local ok, configs = pcall(vim.lsp.config)
+  if ok and type(configs) == "table" then
+    for _, config in pairs(configs) do
+      if type(config) == "table" and config.filetypes then
+        for _, filetype in ipairs(config.filetypes) do
+          if filetype ~= "*" then
+            ft[filetype] = true
+          end
+        end
+      end
+    end
+  end
+
+  -- 2) Servidores desactivados / comentados que aun asi queremos vigilar
+  local extra = {
+    kotlin = true, -- kotlin_language_server desactivado (incompatible con Nvim 0.12)
+  }
+  for k, v in pairs(extra) do
+    ft[k] = v
+  end
+
+  return ft
+end
+
+local lsp_filetypes = get_lsp_filetypes()
+
+vim.api.nvim_create_autocmd("FileType", {
+  callback = function(args)
+    local ft = vim.bo[args.buf].filetype
+    if not ft or ft == "" or not lsp_filetypes[ft] then return end
+
+    vim.defer_fn(function()
+      if not vim.api.nvim_buf_is_valid(args.buf) then return end
+      local clients = vim.lsp.get_clients({ bufnr = args.buf })
+      if #clients > 0 then return end
+
+      local msg = ("\u{26A0} LSP no detectado para `%s`.\n"):format(ft)
+      if ft == "kotlin" then
+        msg = msg
+          .. "kotlin-language-server desactivado: incompatible con Neovim 0.12.\n"
+          .. "Para activarlo, edita lua/configs/lspconfig.lua y descomenta la linea."
+      else
+        msg = msg
+          .. "Verifica que el servidor est\u{e9} instalado (:Mason)\n"
+          .. "y configurado en lua/configs/lspconfig.lua."
+      end
+
+      vim.notify(msg, vim.log.levels.WARN, {
+        title = "LSP: " .. ft,
+        timeout = 5000,
+      })
+    end, 1500)
+  end,
+})
+
 -------------------------------
 -- Auto-reload files modified externally (opencode, git, etc.)
 -------------------------------

@@ -4,6 +4,32 @@ require "nvchad.mappings"
 
 local map = vim.keymap.set
 
+------------------------------
+-- Comando :Q para cerrar pestaña / salir
+------------------------------
+-- :Q  → cierra la pestaña actual. Si es la ultima, cierra Neovim.
+vim.api.nvim_create_user_command("Q", function(opts)
+  -- Contar buffers listados (los que realmente importan)
+  local bufs = vim.api.nvim_list_bufs()
+  local listed = 0
+  for _, buf in ipairs(bufs) do
+    if vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].buflisted then
+      listed = listed + 1
+    end
+  end
+
+  if listed <= 1 then
+    -- Ultimo buffer: salir de Neovim
+    vim.cmd("q" .. (opts.bang and "!" or ""))
+  else
+    -- Cerrar solo el buffer actual (bdelete cierra split/pestania si era el unico)
+    vim.cmd("bdelete" .. (opts.bang and "!" or ""))
+  end
+end, {
+  bang = true,
+  desc = "Close current buffer (or quit if last). :Q! forces discard.",
+})
+
 map("n", ";", ":", { desc = "CMD enter command mode" })
 map("i", "jk", "<ESC>")
 

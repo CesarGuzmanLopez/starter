@@ -128,16 +128,30 @@ return {
 
 ### Convenciones de atajos de este repo
 
-| Prefijo | Categoria | Ejemplo |
-|---------|-----------|---------|
-| `<leader>d*` | Debugging (DAP) | `<leader>dc` continue, `<leader>db` breakpoint |
-| `<leader>t*` | Testing (neotest) | `<leader>tt` run nearest, `<leader>tf` run file |
-| `<leader>l*` | Linting | `<leader>ll` lint buffer |
-| `<leader>f*` | Telescope/files | `<leader>ff` find files, `<leader>fg` live grep |
-| `<leader>g*` | Git | `<leader>gt` git status |
-| `<leader>c*` | CodeCompanion/AI | `<leader>cc` chat, `<leader>ca` actions |
-| `<leader>b*` | Buffers | `<leader>b` new buffer |
-| `<leader>e*` | Explorer | `<leader>e` nvimtree focus |
+| Prefijo | Categoria | Ejemplos | Origen |
+|---------|-----------|----------|--------|
+| `<leader>d*` | Debugging (DAP) | `db` toggle bp, `dc` continue, `dn` step over, `du` toggle UI | `lua/mappings.lua` |
+| `<leader>t*` | Testing (neotest) | `tt` run nearest, `tf` run file, `ts` summary, `td` debug | `lua/mappings.lua` |
+| `<leader>o*` | Opencode (AI) | `oa` ask, `ob` ask buffer, `oo` launch TUI, `on*` session mgmt | `lua/plugins/opencode.lua` |
+| `<leader>x*` | Trouble / Diagnostics | `xx` diagnostics, `xX` buffer diag, `xL` loclist, `xQ` quickfix, `xt` todo | `lua/plugins/trouble.lua`, `lua/plugins/todo-comments.lua` |
+| `<leader>c*` | LSP / Symbols / Git | `cs` symbols, `cl` LSP refs, `cm` git commits | `lua/plugins/trouble.lua`, `lua/mappings.lua` |
+| `<leader>f*` | Telescope / Archivos | `ff` find files, `fw` live grep, `fb` buffers, `fo` oldfiles, `fa` all files | NvChad core |
+| `<leader>g*` | Git (con wrapper) | `gt` git status, `cm` commits (ambos con chequeo de git) | `lua/mappings.lua` (override) |
+| `<leader>l*` | Linting | `ll` lint buffer | `lua/mappings.lua` |
+| `<leader>q*` | Sesiones | `qs` restore, `qS` select, `ql` last, `qd` don't save | `lua/plugins/persistence.lua` |
+| `<leader>w*` | Ventanas / WhichKey | `ws` split, `wv` vsplit, `wK` which-key all, `wk` which-key query | `lua/mappings.lua`, NvChad core |
+| `<leader>b*` | Buffers | `b` new buffer (`:enew`) | NvChad core |
+| `<leader>e*` | Explorador de archivos | `e` abrir Yazi (reemplaza NvimTree) | `lua/plugins/yazi.lua` (override) |
+| `<leader>h*` / `<leader>v*` | Terminales | `h` horizontal, `v` vertical | NvChad core |
+| `<leader>n*` / `<leader>r*` | Numeros de linea | `n` toggle nu, `rn` toggle rnu | NvChad core |
+| `<leader>m*` | Marcas | `ma` telescope marks | NvChad core |
+| `<leader>p*` | Terminal oculta | `pt` pick term | NvChad core |
+| `<leader>th` | Temas | `th` telescope nvchad themes | NvChad core |
+| `<leader>ds` | LSP | `ds` diagnostic loclist | NvChad core |
+| `<leader>ch` | Ayuda | `ch` NvCheatsheet | NvChad core |
+| `<leader>fm` | Formateo | `fm` format buffer (conform) | NvChad core |
+| `<leader>/` | Comentarios | `/` toggle comment (n + v) | NvChad core |
+| `<leader>x` | Buffer | `x` cerrar buffer actual | NvChad core |
 
 ---
 
