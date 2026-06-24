@@ -21,7 +21,7 @@ return {
       min_length = 3,
       use_cmp = false,
       virtualtext = {
-        auto_trigger_ft = { "*" },
+        auto_trigger_ft = {},
         keymap = {
           accept = "<A-CR>",
           next = "<A-y>",
