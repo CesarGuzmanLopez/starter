@@ -26,9 +26,9 @@ require("lazy").setup({
 }, lazy_config)
 
 -- load theme
-local ok1, _ = pcall(dofile, vim.g.base46_cache .. "defaults")
-local ok2, _ = pcall(dofile, vim.g.base46_cache .. "statusline")
--- base46 cache se regenera al abrir nvim con NvChad, no es crítico si falta
+local _, _ = pcall(dofile, vim.g.base46_cache .. "defaults")
+local _, _ = pcall(dofile, vim.g.base46_cache .. "statusline")
+
 
 require "options"
 require "autocmds"
