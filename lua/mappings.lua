@@ -146,15 +146,21 @@ map("n", "<leader>wv", "<cmd>vsplit<cr>", { desc = "Split window vertical" })
 -- los snippets de LuaSnip. Este mapping los reemplaza para saltar placeholders
 -- reales de LuaSnip y, si no hay snippet, cae al comportamiento normal (cmp lo
 -- toma como fallback cuando instala sus propios mappings).
+-- Solo salta placeholders de un snippet YA activo. No expande triggers:
+-- eso se hace eligiendo el snippet en el menu de cmp y confirmando con <CR>.
+-- (Antes usaba expand_or_jumpable(), que incluye expandable() y podia dejar
+-- Tab sin hacer nada si habia un trigger bajo el cursor.)
 local function snippet_jump(direction)
   local ok, ls = pcall(require, "luasnip")
-  if ok and direction == 1 and ls.expand_or_jumpable() then
-    ls.expand_or_jump()
-    return ""
-  end
-  if ok and direction == -1 and ls.jumpable(-1) then
-    ls.jump(-1)
-    return ""
+  if ok then
+    if direction == 1 and ls.jumpable(1) then
+      ls.jump(1)
+      return ""
+    end
+    if direction == -1 and ls.jumpable(-1) then
+      ls.jump(-1)
+      return ""
+    end
   end
   return direction == 1 and "<Tab>" or "<S-Tab>"
 end

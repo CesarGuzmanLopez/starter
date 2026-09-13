@@ -59,41 +59,68 @@ return {
       --   2. menu de cmp abierto  -> recorre las opciones (ver opciones)
       --   3. ghost text de IA     -> lo acepta (autocompletar en linea)
       --   4. si no                -> tab normal
-      local function minuet_virtualtext()
-        return require("minuet.virtualtext").action
+      -- pcall con retorno: devuelve el resultado o false si falla.
+      local function ok_ret(fn, ...)
+        local ok, ret = pcall(fn, ...)
+        return ok and ret
+      end
+
+      -- Tab/S-Tab defensivo: si algo falla o no hace nada, SIEMPRE cae al
+      -- fallback (tab real). Nunca se queda "sin hacer nada".
+      -- Orden: snippet activo -> menu de cmp -> ghost de IA -> tab.
+      -- OJO: no se expande un trigger de snippet con Tab; eso se hace
+      -- eligiendolo en el menu y confirmando con <CR>.
+      local function completion_tab(direction, fallback)
+        local handled = false
+
+        local ok = pcall(function()
+          local ls = ok_ret(require, "luasnip")
+          if ls then
+            if direction == 1 and ok_ret(ls.jumpable, 1) then
+              ok_ret(ls.jump, 1)
+              handled = true
+              return
+            end
+            if direction == -1 and ok_ret(ls.jumpable, -1) then
+              ok_ret(ls.jump, -1)
+              handled = true
+              return
+            end
+          end
+
+          if cmp.visible() then
+            if direction == 1 then
+              cmp.select_next_item { behavior = cmp.SelectBehavior.Select }
+            else
+              cmp.select_prev_item { behavior = cmp.SelectBehavior.Select }
+            end
+            handled = true
+            return
+          end
+
+          local vt = ok_ret(require, "minuet.virtualtext")
+          if vt and vt.action and ok_ret(vt.action.is_visible) then
+            if direction == 1 then
+              ok_ret(vt.action.accept)
+            else
+              ok_ret(vt.action.prev)
+            end
+            handled = true
+            return
+          end
+        end)
+
+        if not ok or not handled then
+          fallback()
+        end
       end
 
       opts.mapping["<Tab>"] = cmp.mapping(function(fallback)
-        -- OJO: no usar expand_or_jumpable() antes del menu, porque incluye
-        -- expandable() (true con un trigger de snippet bajo el cursor) y
-        -- expandia el snippet con el menu abierto en vez de navegar.
-        if luasnip.jumpable(1) then
-          -- Ya dentro de un snippet: saltar al siguiente placeholder.
-          luasnip.jump()
-        elseif cmp.visible() then
-          -- Menu abierto: ver opciones sin insertar (behavior=Select).
-          cmp.select_next_item { behavior = cmp.SelectBehavior.Select }
-        elseif luasnip.expandable() then
-          -- Trigger de snippet, sin menu abierto: expandir.
-          luasnip.expand()
-        elseif minuet_virtualtext().is_visible() then
-          -- IA inline: aceptar.
-          minuet_virtualtext().accept()
-        else
-          fallback()
-        end
+        completion_tab(1, fallback)
       end, { "i", "s" })
 
       opts.mapping["<S-Tab>"] = cmp.mapping(function(fallback)
-        if luasnip.jumpable(-1) then
-          luasnip.jump(-1)
-        elseif cmp.visible() then
-          cmp.select_prev_item { behavior = cmp.SelectBehavior.Select }
-        elseif minuet_virtualtext().is_visible() then
-          minuet_virtualtext().prev()
-        else
-          fallback()
-        end
+        completion_tab(-1, fallback)
       end, { "i", "s" })
 
       -- NvChad deja <C-n>/<C-p> con el default de cmp (Insert), que pega el
