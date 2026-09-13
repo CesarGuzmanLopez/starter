@@ -10,7 +10,9 @@ M.base46 = {
 	transparency = true,
 
 	hl_override = {
-		CursorLine = { bg = "#3a3a4a" },
+		-- Sin fondo opaco: el fondo gris tapaba el color de los strings en
+		-- la linea activa. Usar "NONE" para que herede el fondo del terminal.
+		CursorLine = { bg = "NONE" },
 	},
 }
 

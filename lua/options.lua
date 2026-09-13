@@ -16,7 +16,9 @@ package.path = luarocks_path .. ";" .. package.path
 local luarocks_lib = vim.fn.expand "~/.luarocks/lib/lua/5.1/?.so"
 package.cpath = luarocks_lib .. ";" .. package.cpath
 
-vim.opt.cursorlineopt = 'line'
+-- Resaltar SOLO el numero de la linea activa, no el texto: asi la sintaxis
+-- (sobre todo los strings) no pierde contraste en la linea del cursor.
+vim.opt.cursorlineopt = "number"
 
 -- Click derecho (boton secundario): sin menu contextual de Neovim.
 -- El comportamiento (copiar/pegar) se define en lua/mappings.lua.

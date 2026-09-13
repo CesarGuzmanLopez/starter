@@ -3,13 +3,12 @@
 -- override del chadrc no fuerce un color pensado solo para un modo.
 local M = {}
 
----@param mode? "dark"|"light"|string
-function M.apply(mode)
-  local dark = mode ~= "light"
-
-  -- CursorLine: en oscuro el tono original del usuario; en claro, uno que no
-  -- opaque el fondo transparente con un color oscuro.
-  vim.api.nvim_set_hl(0, "CursorLine", { bg = dark and "#3a3a4a" or "#e4e4ec" })
+function M.apply()
+  -- La linea activa NO lleva fondo opaco: un bg solido (p. ej. #3a3a4a)
+  -- tapa el color de los strings y se vuelven ilegibles. Con
+  -- cursorlineopt=number se marca la linea con el numero (CursorLineNr).
+  vim.api.nvim_set_hl(0, "CursorLine", { bg = "NONE" })
+  vim.api.nvim_set_hl(0, "CursorLineNr", { bold = true })
 
   -- Visual: invierte fg/bg sin depender del bg del tema (no se mezcla).
   vim.api.nvim_set_hl(0, "Visual", { reverse = true })
