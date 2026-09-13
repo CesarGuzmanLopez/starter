@@ -48,4 +48,29 @@ M.ui = {
 	},
 }
 
+-- Herramientas extra que MasonInstallAll debe instalar (ademas de las que
+-- detecta de lspconfig / conform / nvim-lint).
+M.mason = {
+	pkgs = {
+		"stylua",
+		"prettierd",
+		"clang-format",
+		"ktfmt",
+		"google-java-format",
+		"qmlformat",
+		"ruff",
+		"mypy",
+		"eslint_d",
+		"clangtidy",
+		"htmlhint",
+		"stylelint",
+		"jsonlint",
+		"markdownlint",
+		"yamllint",
+		"ktlint",
+		"cmakelint",
+	},
+	skip = {},
+}
+
 return M

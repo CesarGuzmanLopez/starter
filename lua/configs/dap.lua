@@ -28,15 +28,6 @@ return {
     },
   },
 
-  -- Adapters to install via mason
-  mason_dap = {
-    ensure_installed = {
-      "codelldb",       -- C/C++/Rust
-      "debugpy",        -- Python
-      "js-debug-adapter", -- JS/TS
-    },
-  },
-
   -- Language configurations
   configurations = {
     c = {

@@ -49,6 +49,16 @@
 | `jk` | i | Salir de insert (ESC). |
 | `:Q` | cmd | Cierra el buffer actual; si es el último, sale. `:Q!` fuerza el descarte. |
 | `<leader>ut` | n | Toggle tema claro/oscuro (auto). |
+| `<leader>rN` | n | Toggle `relativenumber` (el rename LSP usa `<leader>rn`). |
+
+### Edición
+
+| Tecla | Modo | Acción |
+|---|---|---|
+| `<C-s>` | i, v | Guardar archivo. |
+| `Y` | n | Yank hasta fin de línea. |
+| `<A-j>` / `<A-k>` | n | Mover línea abajo / arriba. |
+| `<A-j>` / `<A-k>` | v | Mover selección abajo / arriba. |
 
 ### LSP (buffer-local, solo con LSP activo)
 

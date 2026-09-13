@@ -21,3 +21,16 @@ vim.opt.cursorlineopt = 'line'
 -- Click derecho (boton secundario): sin menu contextual de Neovim.
 -- El comportamiento (copiar/pegar) se define en lua/mappings.lua.
 vim.opt.mousemodel = "extend"
+
+-- Opciones comunes
+vim.opt.relativenumber = true
+vim.opt.scrolloff = 8
+vim.opt.sidescrolloff = 8
+vim.opt.confirm = true -- pedir confirmacion al salir sin guardar
+vim.opt.swapfile = false
+vim.opt.backup = false
+vim.opt.writebackup = false
+vim.opt.list = true
+vim.opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
+vim.opt.pumheight = 12
+vim.opt.autoread = true

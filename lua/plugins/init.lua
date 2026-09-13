@@ -120,20 +120,15 @@ return {
   },
 
   {
+    -- NvChad v2.5 ya se encarga de la instalacion (:TSInstallAll / build) y
+    -- del highlighting (vim.treesitter.start en su autocmd). Solo extendemos
+    -- la lista de parsers; no hace falta config custom ni bloquear el arranque.
+    -- branch=main obligatorio: es la API que espera NvChad v2.5 (master esta
+    -- archivada). Sin esto, lazy puede resolver a master por el origin/HEAD local.
     "nvim-treesitter/nvim-treesitter",
     branch = "main",
-    lazy = false,
-    priority = 100,
-    build = ":TSUpdate",
-    opts = {},
-    config = function()
-      pcall(function()
-        dofile(vim.g.base46_cache .. "treesitter")
-      end)
-
-      require("nvim-treesitter").setup {}
-
-      local parsers = {
+    opts = function(_, opts)
+      local extra = {
         "vim", "lua", "vimdoc",
         "html", "css",
         "rust", "toml",
@@ -143,21 +138,11 @@ return {
         "json", "yaml", "markdown", "markdown_inline",
         "java", "kotlin",
       }
-      require("nvim-treesitter").install(parsers):wait(300000)
-
-      vim.api.nvim_create_autocmd("FileType", {
-        group = vim.api.nvim_create_augroup("NvChadTsHighlight", { clear = true }),
-        callback = function(args)
-          pcall(vim.treesitter.start, args.buf)
-        end,
-      })
-
-      vim.api.nvim_create_autocmd("FileType", {
-        group = vim.api.nvim_create_augroup("NvChadTsIndent", { clear = true }),
-        callback = function(args)
-          vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
-        end,
-      })
+      for _, parser in ipairs(extra) do
+        if not vim.tbl_contains(opts.ensure_installed, parser) then
+          table.insert(opts.ensure_installed, parser)
+        end
+      end
     end,
   },
 
@@ -346,20 +331,10 @@ return {
         table.insert(adapters, gtest)
       end
 
-      require("neotest").setup {
-        adapters = adapters,
-        discovery = { enabled = true },
-        status = { enabled = true, signs = true, virtual_text = false },
-        output = { enabled = true, open_on_run = false },
-        summary = { enabled = true, follow = true },
-        icons = {
-          passed = "",
-          running = "",
-          failed = "",
-          unknown = "",
-          skipped = "",
-        },
-      }
+      -- La config base vive en lua/configs/neotest.lua (incluye strategies).
+      local configs = require "configs.neotest"
+      configs.adapters = adapters
+      require("neotest").setup(configs)
     end,
   },
 

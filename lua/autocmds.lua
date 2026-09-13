@@ -208,3 +208,54 @@ vim.api.nvim_create_autocmd("BufEnter", {
 -- Tema claro/oscuro segun el fondo de la terminal
 ------------------------------
 require("configs.auto_theme").setup()
+
+------------------------------
+-- Autocmds comunes
+------------------------------
+
+-- Resaltar brevemente lo que se copia
+vim.api.nvim_create_autocmd("TextYankPost", {
+  group = vim.api.nvim_create_augroup("UserYankHighlight", { clear = true }),
+  callback = function()
+    vim.hl.on_yank()
+  end,
+})
+
+-- Restaurar la posicion del cursor al reabrir un archivo
+vim.api.nvim_create_autocmd("BufReadPost", {
+  group = vim.api.nvim_create_augroup("UserRestoreCursor", { clear = true }),
+  callback = function(args)
+    local mark = vim.api.nvim_buf_get_mark(args.buf, '"')
+    local lines = vim.api.nvim_buf_line_count(args.buf)
+    if mark[1] > 0 and mark[1] <= lines then
+      vim.api.nvim_win_set_cursor(0, mark)
+      vim.cmd "normal! zz"
+    end
+  end,
+})
+
+-- Redimensionar splits al cambiar el tamano de la ventana
+vim.api.nvim_create_autocmd("VimResized", {
+  group = vim.api.nvim_create_augroup("UserResizeSplits", { clear = true }),
+  command = "tabdo wincmd =",
+})
+
+-- Cerrar quickfix/help/etc con q
+vim.api.nvim_create_autocmd("FileType", {
+  group = vim.api.nvim_create_augroup("UserCloseWithQ", { clear = true }),
+  pattern = { "qf", "help", "man", "checkhealth", "lspinfo", "DressingInput" },
+  callback = function(args)
+    vim.keymap.set("n", "q", "<cmd>close<cr>", { buffer = args.buf, silent = true, desc = "Cerrar ventana" })
+  end,
+})
+
+-- Crear los directorios padre al guardar un archivo nuevo
+vim.api.nvim_create_autocmd("BufWritePre", {
+  group = vim.api.nvim_create_augroup("UserAutoMkdir", { clear = true }),
+  callback = function(args)
+    if args.match:match "^%w+://" then
+      return
+    end
+    vim.fn.mkdir(vim.fn.fnamemodify(args.file, ":p:h"), "p")
+  end,
+})

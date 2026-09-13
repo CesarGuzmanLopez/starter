@@ -184,3 +184,19 @@ end, { desc = "Toggle tema claro/oscuro (auto)" })
 map("n", "<RightMouse>", '"+p', { desc = "Click derecho: pegar" })
 map("v", "<RightMouse>", '"+y', { desc = "Click derecho: copiar selección" })
 
+------------------------------
+-- Edición: guardar, yank, mover líneas
+------------------------------
+map({ "i", "v" }, "<C-s>", "<cmd>w<cr>", { desc = "Guardar archivo" })
+map("n", "Y", "y$", { desc = "Yank hasta fin de línea" })
+
+-- Mover líneas con Alt+j / Alt+k
+map("n", "<A-j>", ":m .+1<cr>==", { desc = "Mover línea abajo" })
+map("n", "<A-k>", ":m .-2<cr>==", { desc = "Mover línea arriba" })
+map("v", "<A-j>", ":m '>+1<cr>gv=gv", { desc = "Mover selección abajo" })
+map("v", "<A-k>", ":m '<-2<cr>gv=gv", { desc = "Mover selección arriba" })
+
+-- NvChad usa <leader>rn para alternar relativenumber; el rename LSP es
+-- buffer-local y gana en buffers con LSP. Movemos el toggle a <leader>rN.
+map("n", "<leader>rN", "<cmd>set rnu!<cr>", { desc = "Toggle relative number" })
+
