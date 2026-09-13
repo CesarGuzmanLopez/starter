@@ -112,24 +112,23 @@ vim.api.nvim_create_autocmd("FileChangedShell", {
   end,
 })
 
--- Forzar CursorLine background al final de la carga (después de temas/plugins)
-vim.api.nvim_create_autocmd("VimEnter", {
-  group = vim.api.nvim_create_augroup("ForceHighlights", { clear = true }),
-  callback = function()
-    vim.api.nvim_set_hl(0, "CursorLine", { bg = "#3a3a4a" })
-    -- Visual: invierte fg/bg sin usar bg del tema (nunca se mezcla)
-    vim.api.nvim_set_hl(0, "Visual", { reverse = true })
-  end,
-  once = true,
+-- Highlights de UI adaptativos al modo claro/oscuro.
+-- Se re-aplican al cargar y despues de cada recarga de tema de base46
+-- (p. ej. cuando auto_theme cambia entre wallust y el tema claro).
+local hl_group = vim.api.nvim_create_augroup("AdaptiveHighlights", { clear = true })
+local function apply_ui_highlights()
+  require("configs.highlights").apply(vim.o.background)
+end
+
+vim.api.nvim_create_autocmd({ "VimEnter", "ColorScheme" }, {
+  group = hl_group,
+  callback = apply_ui_highlights,
 })
 
--- Respaldar: Forzar después de CUALQUIER cambio de colorscheme
-vim.api.nvim_create_autocmd("ColorScheme", {
-  group = vim.api.nvim_create_augroup("PersistHighlights", { clear = true }),
-  callback = function()
-    vim.api.nvim_set_hl(0, "CursorLine", { bg = "#3a3a4a" })
-    vim.api.nvim_set_hl(0, "Visual", { reverse = true })
-  end,
+vim.api.nvim_create_autocmd("User", {
+  group = hl_group,
+  pattern = "NvThemeReload",
+  callback = apply_ui_highlights,
 })
 
 -- Image viewer: intercept image files and display with kitten icat in a floating window
@@ -204,3 +203,8 @@ vim.api.nvim_create_autocmd("BufEnter", {
     vim.bo[args.buf].buftype = "nofile"
   end,
 })
+
+------------------------------
+-- Tema claro/oscuro segun el fondo de la terminal
+------------------------------
+require("configs.auto_theme").setup()
