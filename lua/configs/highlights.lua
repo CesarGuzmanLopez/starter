@@ -2,19 +2,31 @@
 -- Se re-aplican despues de cada recarga de tema (base46).
 local M = {}
 
----Fondo del tema actual (base_30.black o base_16.base00).
-local function theme_bg()
+---Tabla base_30 del tema actual.
+local function base30()
   local ok, base46 = pcall(require, "base46")
   if not ok or not base46.get_theme_tb then
     return nil
   end
-  local ok30, base30 = pcall(base46.get_theme_tb, "base_30")
-  if ok30 and type(base30) == "table" and base30.black then
-    return base30.black
+  local ok2, tb = pcall(base46.get_theme_tb, "base_30")
+  if ok2 and type(tb) == "table" then
+    return tb
   end
-  local ok16, base16 = pcall(base46.get_theme_tb, "base_16")
-  if ok16 and type(base16) == "table" and base16.base00 then
-    return base16.base00
+  return nil
+end
+
+---Fondo del tema actual (base_30.black o base_16.base00).
+local function theme_bg()
+  local tb = base30()
+  if tb and tb.black then
+    return tb.black
+  end
+  local ok, base46 = pcall(require, "base46")
+  if ok and base46.get_theme_tb then
+    local ok2, b16 = pcall(base46.get_theme_tb, "base_16")
+    if ok2 and type(b16) == "table" then
+      return b16.base00
+    end
   end
   return nil
 end
@@ -40,6 +52,21 @@ function M.apply()
 
   -- Visual: invierte fg/bg sin depender del bg del tema (no se mezcla).
   vim.api.nvim_set_hl(0, "Visual", { reverse = true })
+
+  -- Tabufline: con transparency=true, base46 la deja en bg=NONE y en modo
+  -- claro se ve el terminal oscuro detras. Le devolvemos el fondo del tema
+  -- (claro en claro, oscuro en oscuro) manteniendo el resto transparente.
+  local c = base30()
+  if c then
+    vim.api.nvim_set_hl(0, "Tabline", { bg = c.black2 })
+    vim.api.nvim_set_hl(0, "TbFill", { bg = c.black2 })
+    vim.api.nvim_set_hl(0, "TbBufOn", { bg = c.black, fg = c.white })
+    vim.api.nvim_set_hl(0, "TbBufOff", { bg = c.black2, fg = c.light_grey })
+    vim.api.nvim_set_hl(0, "TbBufOnClose", { bg = c.black, fg = c.red })
+    vim.api.nvim_set_hl(0, "TbBufOffClose", { bg = c.black2, fg = c.light_grey })
+    vim.api.nvim_set_hl(0, "TbBufOnModified", { bg = c.black, fg = c.green })
+    vim.api.nvim_set_hl(0, "TbBufOffModified", { bg = c.black2, fg = c.red })
+  end
 end
 
 return M
