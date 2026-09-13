@@ -175,3 +175,12 @@ map("n", "<leader>ut", function()
   require("configs.auto_theme").toggle()
 end, { desc = "Toggle tema claro/oscuro (auto)" })
 
+------------------------------
+-- Botón secundario del mouse (click derecho)
+------------------------------
+-- Deshabilita el menú contextual de Neovim.
+--   con selección (modo visual) -> copia al portapapeles
+--   sin selección (modo normal) -> pega desde el portapapeles
+map("n", "<RightMouse>", '"+p', { desc = "Click derecho: pegar" })
+map("v", "<RightMouse>", '"+y', { desc = "Click derecho: copiar selección" })
+

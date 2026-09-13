@@ -17,3 +17,7 @@ local luarocks_lib = vim.fn.expand "~/.luarocks/lib/lua/5.1/?.so"
 package.cpath = luarocks_lib .. ";" .. package.cpath
 
 vim.opt.cursorlineopt = 'line'
+
+-- Click derecho (boton secundario): sin menu contextual de Neovim.
+-- El comportamiento (copiar/pegar) se define en lua/mappings.lua.
+vim.opt.mousemodel = "extend"
