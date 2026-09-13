@@ -87,11 +87,12 @@ local function detect_portal()
 end
 
 ---Devuelve "light" o "dark".
+---Prioridad: override manual -> KDE/portal -> kitty -> oscuro por defecto.
 function M.detect()
   if vim.env.NVIM_THEME_MODE == "light" or vim.env.NVIM_THEME_MODE == "dark" then
     return vim.env.NVIM_THEME_MODE
   end
-  return detect_kitty() or detect_portal() or (vim.o.background == "light" and "light" or "dark")
+  return detect_portal() or detect_kitty() or "dark"
 end
 
 ---Aplica el tema del modo indicado. Devuelve true si cambio.
@@ -174,6 +175,15 @@ function M.setup()
       end)
     end,
   })
+
+  -- Re-chequear cada 10s: KDE puede cambiar de tema sin que Neovim pierda foco.
+  -- M.sync() solo aplica si el modo detectado cambio, asi que no molesta.
+  local timer = vim.uv.new_timer()
+  if timer then
+    timer:start(10000, 10000, vim.schedule_wrap(function()
+      M.sync()
+    end))
+  end
 end
 
 return M
