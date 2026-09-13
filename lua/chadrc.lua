@@ -9,11 +9,8 @@ M.base46 = {
 	theme = "wallust",
 	transparency = true,
 
-	hl_override = {
-		-- Sin fondo opaco: el fondo gris tapaba el color de los strings en
-		-- la linea activa. Usar "NONE" para que herede el fondo del terminal.
-		CursorLine = { bg = "NONE" },
-	},
+	-- CursorLine/CursorLineNr se calculan en configs/highlights.lua a partir del
+	-- fondo del tema (un tono apenas mas claro/oscuro, sin tapar los strings).
 }
 
 -- NvChad custom statusline with opencode integration
