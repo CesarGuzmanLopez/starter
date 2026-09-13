@@ -139,3 +139,39 @@ end
 map("n", "<leader>ws", "<cmd>split<cr>", { desc = "Split window horizontal" })
 map("n", "<leader>wv", "<cmd>vsplit<cr>", { desc = "Split window vertical" })
 
+------------------------------
+-- Tab / S-Tab: placeholders de LuaSnip
+------------------------------
+-- Neovim 0.12 mapea <Tab>/<S-Tab> a vim.snippet (motor nativo), que no conoce
+-- los snippets de LuaSnip. Este mapping los reemplaza para saltar placeholders
+-- reales de LuaSnip y, si no hay snippet, cae al comportamiento normal (cmp lo
+-- toma como fallback cuando instala sus propios mappings).
+local function snippet_jump(direction)
+  local ok, ls = pcall(require, "luasnip")
+  if ok and direction == 1 and ls.expand_or_jumpable() then
+    ls.expand_or_jump()
+    return ""
+  end
+  if ok and direction == -1 and ls.jumpable(-1) then
+    ls.jump(-1)
+    return ""
+  end
+  return direction == 1 and "<Tab>" or "<S-Tab>"
+end
+
+map({ "i", "s" }, "<Tab>", function()
+  return snippet_jump(1)
+end, { expr = true, silent = true, desc = "Tab: LuaSnip placeholder / fallback" })
+
+map({ "i", "s" }, "<S-Tab>", function()
+  return snippet_jump(-1)
+end, { expr = true, silent = true, desc = "S-Tab: LuaSnip placeholder back" })
+
+------------------------------
+-- Tema claro/oscuro automatico
+------------------------------
+-- Sigue el fondo real de la terminal (kitty). Fuerza el modo opuesto a mano.
+map("n", "<leader>ut", function()
+  require("configs.auto_theme").toggle()
+end, { desc = "Toggle tema claro/oscuro (auto)" })
+

@@ -261,13 +261,13 @@ Las env vars se cargan desde `~/.bashrc` o `~/.zshrc`. No hay soporte automatico
 
 ```bash
 # En ~/.bashrc o ~/.zshrc
-export MINUET_API_KEY="tu-key-aqui"
+export GROQ_API_KEY="tu-groq-key-aqui"   # Minuet (autocompletado IA)
 export MY_SERVICE_KEY="otra-key"
 ```
 
 Verificar que existen:
 ```bash
-source ~/.bashrc && echo $MINUET_API_KEY
+source ~/.bashrc && echo $GROQ_API_KEY
 ```
 
 El `.env.example` documenta las variables requeridas pero no se carga automaticamente.
@@ -391,7 +391,7 @@ Configurado en `lua/plugins/opencode.lua`. Usa Opencode AI como asistente.
 
 ### AI Completion (Minuet)
 
-Configurado en `lua/plugins/minuet.lua`. Autocompletado inline con LLM via proxy propio.
+Configurado en `lua/plugins/minuet.lua`. Autocompletado inline con LLM via Groq (modelo por defecto `openai/gpt-oss-20b`, configurable con `GROQ_MODEL`). Requiere `GROQ_API_KEY` y carga al inicio (`lazy = false`) para que el autocmd de `FileType` habilite el ghost text en todos los buffers.
 
 | Accion | Tecla |
 |--------|-------|

@@ -13,6 +13,97 @@ return {
   },
 
   {
+    "hrsh7th/nvim-cmp",
+    opts = function(_, opts)
+      local cmp = require "cmp"
+      local luasnip = require "luasnip"
+
+      -- Menu de completado "normal": LSP + snippets + buffer + paths.
+      -- La IA NO entra aca a proposito: sus sugerencias suelen ser multi-linea
+      -- y no se ven completas en el menu. La IA va aparte como ghost text.
+      opts.sources = {
+        { name = "nvim_lsp" },
+        { name = "luasnip" },
+        { name = "buffer" },
+        { name = "nvim_lua" },
+        { name = "async_path" },
+      }
+
+      -- Timeout un poco mas alto por si alguna fuente tarda; no bloquea al resto.
+      opts.performance = vim.tbl_deep_extend("force", opts.performance or {}, { fetching_timeout = 2000 })
+
+      -- No insertar el item seleccionado hasta confirmar (<CR>).
+      opts.completion = vim.tbl_deep_extend("force", opts.completion or {}, {
+        completeopt = "menu,menuone,noinsert",
+      })
+
+      -- Etiqueta de origen en el menu, para distinguir de donde sale cada item.
+      local labels = {
+        nvim_lsp = "LSP",
+        luasnip = "Snippet",
+        buffer = "Buffer",
+        nvim_lua = "Lua",
+        async_path = "Path",
+        path = "Path",
+      }
+      local base_format = opts.formatting.format
+      opts.formatting.format = function(entry, item)
+        item = base_format(entry, item)
+        item.menu = labels[entry.source.name] or entry.source.name
+        item.menu_hl_group = "comment"
+        return item
+      end
+
+      -- Tab en insert. Para confirmar del menu se usa <CR>. Orden:
+      --   1. dentro de un snippet -> salta al siguiente placeholder
+      --   2. menu de cmp abierto  -> recorre las opciones (ver opciones)
+      --   3. ghost text de IA     -> lo acepta (autocompletar en linea)
+      --   4. si no                -> tab normal
+      local function minuet_virtualtext()
+        return require("minuet.virtualtext").action
+      end
+
+      opts.mapping["<Tab>"] = cmp.mapping(function(fallback)
+        -- OJO: no usar expand_or_jumpable() antes del menu, porque incluye
+        -- expandable() (true con un trigger de snippet bajo el cursor) y
+        -- expandia el snippet con el menu abierto en vez de navegar.
+        if luasnip.jumpable(1) then
+          -- Ya dentro de un snippet: saltar al siguiente placeholder.
+          luasnip.jump()
+        elseif cmp.visible() then
+          -- Menu abierto: ver opciones sin insertar (behavior=Select).
+          cmp.select_next_item { behavior = cmp.SelectBehavior.Select }
+        elseif luasnip.expandable() then
+          -- Trigger de snippet, sin menu abierto: expandir.
+          luasnip.expand()
+        elseif minuet_virtualtext().is_visible() then
+          -- IA inline: aceptar.
+          minuet_virtualtext().accept()
+        else
+          fallback()
+        end
+      end, { "i", "s" })
+
+      opts.mapping["<S-Tab>"] = cmp.mapping(function(fallback)
+        if luasnip.jumpable(-1) then
+          luasnip.jump(-1)
+        elseif cmp.visible() then
+          cmp.select_prev_item { behavior = cmp.SelectBehavior.Select }
+        elseif minuet_virtualtext().is_visible() then
+          minuet_virtualtext().prev()
+        else
+          fallback()
+        end
+      end, { "i", "s" })
+
+      -- NvChad deja <C-n>/<C-p> con el default de cmp (Insert), que pega el
+      -- texto al navegar. Los alineamos a Select: ver opciones sin pegar nada.
+      opts.mapping["<C-n>"] = cmp.mapping.select_next_item { behavior = cmp.SelectBehavior.Select }
+      opts.mapping["<C-p>"] = cmp.mapping.select_prev_item { behavior = cmp.SelectBehavior.Select }
+    end,
+  },
+
+  {
     "mfussenegger/nvim-jdtls",
     ft = { "java", "kotlin" },
     config = function()
