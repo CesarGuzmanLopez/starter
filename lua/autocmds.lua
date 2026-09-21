@@ -114,7 +114,7 @@ vim.api.nvim_create_autocmd("FileChangedShell", {
 
 -- Highlights de UI adaptativos al modo claro/oscuro.
 -- Se re-aplican al cargar y despues de cada recarga de tema de base46
--- (p. ej. cuando auto_theme cambia entre wallust y el tema claro).
+-- (p. ej. cuando auto_theme cambia entre catppuccin y el tema claro).
 local hl_group = vim.api.nvim_create_augroup("AdaptiveHighlights", { clear = true })
 local function apply_ui_highlights()
   require("configs.highlights").apply(vim.o.background)

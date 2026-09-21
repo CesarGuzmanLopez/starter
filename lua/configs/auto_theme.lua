@@ -9,7 +9,7 @@
 -- No toca KDE: si KDE cambia el esquema, kitty cambia su fondo y esto lo sigue.
 local M = {}
 
-local DARK_THEME = vim.env.NVIM_DARK_THEME or "wallust"
+local DARK_THEME = vim.env.NVIM_DARK_THEME or "catppuccin"
 local LIGHT_THEME = vim.env.NVIM_LIGHT_THEME or "one_light"
 
 local last_check = 0

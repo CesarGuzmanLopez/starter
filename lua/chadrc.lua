@@ -6,7 +6,7 @@
 local M = {}
 
 M.base46 = {
-	theme = "wallust",
+	theme = "catppuccin",
 	transparency = true,
 
 	-- CursorLine/CursorLineNr se calculan en configs/highlights.lua a partir del
