@@ -12,6 +12,9 @@ return {
     end,
   },
 
+  -- test new blink
+  -- { import = "nvchad.blink.lazyspec" },
+
   {
     "hrsh7th/nvim-cmp",
     opts = function(_, opts)
