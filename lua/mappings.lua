@@ -2,6 +2,10 @@ require "nvchad.mappings"
 
 -- <leader>e queda como prefijo: ey=Yazi, ee=explorer izquierdo.
 pcall(vim.keymap.del, "n", "<leader>e")
+-- Exploracion movida de NvChad (ff/fw/fb) a <leader>e*.
+pcall(vim.keymap.del, "n", "<leader>ff")
+pcall(vim.keymap.del, "n", "<leader>fw")
+pcall(vim.keymap.del, "n", "<leader>fb")
 
 -- add yours here
 
@@ -56,6 +60,11 @@ if telescope_ok then
 
   map("n", "<leader>gt", in_git_repo(telescope.git_status), { desc = "Telescope git status" })
   map("n", "<leader>cm", in_git_repo(telescope.git_commits), { desc = "Telescope git commits" })
+
+  -- Exploracion (movida de ff/fw/fb): buffers, difusa, por nombre de archivo.
+  map("n", "<leader>eb", telescope.buffers, { desc = "Buffers abiertos" })
+  map("n", "<leader>ef", telescope.live_grep, { desc = "Búsqueda difusa (texto)" })
+  map("n", "<leader>ew", telescope.find_files, { desc = "Buscar por nombre de archivo" })
 end
 
 -------------------------------

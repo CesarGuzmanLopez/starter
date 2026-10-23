@@ -94,8 +94,8 @@ Ver `AGENTS.md` para la lista completa. Aqui los mas usados:
 
 | Accion | Atajo |
 |--------|-------|
-| Buscar archivos | `<leader>ff` |
-| Buscar texto | `<leader>fw` |
+| Buscar archivos | `<leader>ew` |
+| Buscar texto | `<leader>ef` |
 | Cerrar buffer | `:Q` o `<leader>x` |
 | Ir a definicion | `gd` |
 | Documentacion | `K` |
@@ -105,7 +105,9 @@ Ver `AGENTS.md` para la lista completa. Aqui los mas usados:
 | Debug toggle bp | `<leader>db` |
 | Test run | `<leader>tt` |
 | Opencode AI | `<leader>oa` |
-| Explorador | `<leader>e` |
+| Explorador Yazi | `<leader>ey` |\
+| Explorer izquierdo | `<leader>ee` |\
+| Buffers abiertos | `<leader>eb` |
 | Terminal horiz | `<leader>h` |
 | Terminal vert | `<leader>v` |
 

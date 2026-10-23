@@ -138,7 +138,11 @@
 
 | Tecla | Acción |
 |---|---|
-| `<leader>e` | Abrir Yazi (explorador) |
+| `<leader>ey` | Abrir Yazi (explorador) |
+| `<leader>ee` | Explorer izquierdo (NvimTree, raíz proyecto) |
+| `<leader>eb` | Buffers abiertos |
+| `<leader>ef` | Búsqueda difusa (texto) |
+| `<leader>ew` | Buscar por nombre de archivo |
 | `<leader>ll` | Lint del buffer |
 
 ### OpenCode (IA)
