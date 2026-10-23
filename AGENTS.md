@@ -391,16 +391,16 @@ Configurado en `lua/plugins/opencode.lua`. Usa Opencode AI como asistente.
 
 ### AI Completion (Minuet)
 
-Configurado en `lua/plugins/minuet.lua`. Autocompletado inline con LLM via Groq (modelo por defecto `openai/gpt-oss-20b`, configurable con `GROQ_MODEL`). Requiere `GROQ_API_KEY` y carga al inicio (`lazy = false`) para que el autocmd de `FileType` habilite el ghost text en todos los buffers.
+Configurado en `lua/plugins/minuet.lua`. Autocompletado inline con LLM via Groq (modelo por defecto `openai/gpt-oss-20b`, configurable con `GROQ_MODEL`). Requiere `GROQ_API_KEY` y carga al inicio (`lazy = false`) para los keymaps de ghost text por buffer.
 
 | Accion | Tecla |
 |--------|-------|
 | Aceptar ghost text | `<A-CR>` (Alt+Enter) |
-| Siguiente sugerencia / forzar minuet | `<A-y>` (Alt+y) |
+| Pedir sugerencia / siguiente | `<A-n>` (Alt+n, manual) |
 | Descartar ghost text | `<C-]>` |
 
-- Se activa **automaticamente** al escribir 3+ caracteres (debounce 600ms, throttle 1.5s)
-- Filetype: todos (`auto_trigger_ft = { "*" }`)
+- Modo **manual**: solo sugiere al pulsar `<A-n>`/`<A-p>` (`auto_trigger_ft = {}`). `<A-CR>` acepta, `<C-]>` descarta.
+- Filetype: todos, pero sin auto-trigger (`auto_trigger_ft = {}`)
 
 ### Completado / Snippets (nvim-cmp + LuaSnip)
 

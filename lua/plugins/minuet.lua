@@ -3,7 +3,7 @@ return {
   version = "*",
   -- Cargar al inicio. Minuet registra un autocmd de FileType que habilita el
   -- ghost text por buffer; si carga en InsertEnter (despues del FileType del
-  -- buffer) el auto-trigger nunca se activa en los archivos ya abiertos.
+  -- buffer) los atajos no quedan en los archivos ya abiertos.
   lazy = false,
   config = function()
     -- Groq (API compatible con OpenAI). El modelo se resuelve asi:
@@ -38,12 +38,12 @@ return {
       -- lua/plugins/init.lua y activa aca enable_auto_complete.
       cmp = { enable_auto_complete = false },
       virtualtext = {
-        auto_trigger_ft = { "*" },
+        auto_trigger_ft = {}, -- EXPLICITO: nunca pide sola; <A-n>/<A-p> la invocan
         -- Se oculta cuando el menu de cmp esta abierto: evita solapamientos.
         show_on_completion_menu = false,
         keymap = {
           accept = "<A-CR>",
-          -- Ciclar entre las sugerencias inline de la IA.
+          -- Sin sugerencia visible la PIDEN a la IA; si la hay, ciclan.
           next = "<A-n>",
           prev = "<A-p>",
           dismiss = "<C-]>",

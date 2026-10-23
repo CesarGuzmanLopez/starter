@@ -22,7 +22,7 @@
 
 > El menú **no** incluye la IA a propósito: la IA va aparte (inline) para no mezclar sugerencias multi-línea.
 
-### IA inline — Minuet (ghost text)
+### IA inline — Minuet (ghost text, MANUAL: `<A-n>` pide)
 
 | Tecla | Acción |
 |---|---|
