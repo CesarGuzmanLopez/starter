@@ -23,6 +23,7 @@ local servers = {
   "taplo", -- TOML
   "marksman", -- Markdown
   "dockerls", -- Dockerfile
+  "serve_d", -- D language
 }
 
 vim.lsp.enable(servers)

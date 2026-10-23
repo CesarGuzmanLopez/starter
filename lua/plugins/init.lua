@@ -159,7 +159,7 @@ return {
     branch = "main",
     opts = function(_, opts)
       local extra = {
-        "vim", "lua", "vimdoc",
+        "vim", "lua", "vimdoc", "luadoc", "printf",
         "html", "css",
         "rust", "toml",
         "c", "cpp",
@@ -167,6 +167,7 @@ return {
         "python",
         "json", "yaml", "markdown", "markdown_inline",
         "java", "kotlin",
+        "bash", "cmake", "dockerfile", "d",
       }
       for _, parser in ipairs(extra) do
         if not vim.tbl_contains(opts.ensure_installed, parser) then
