@@ -167,7 +167,7 @@ return {
         "python",
         "json", "yaml", "markdown", "markdown_inline",
         "java", "kotlin",
-        "bash", "cmake", "dockerfile", "d",
+        "bash", "cmake", "dockerfile", "d", "julia",
       }
       for _, parser in ipairs(extra) do
         if not vim.tbl_contains(opts.ensure_installed, parser) then

@@ -6,8 +6,8 @@
 #   --check   : solo verifica e informa lo que falta (exit 1 si falta algo)
 set -u
 
-MASON_PKGS="angular-language-server bash-language-server clangd clang-format cmake-language-server cmakelint codelldb css-lsp debugpy dockerfile-language-server eslint_d google-java-format htmlhint html-lsp intelephense jdtls js-debug-adapter jsonlint json-lsp ktfmt ktlint lua-language-server markdownlint marksman mypy prettierd pyright qmlls ruff rust-analyzer serve-d stylelint stylua taplo typescript-language-server yaml-language-server yamllint"
-TS_PARSERS="bash c cmake cpp css d dockerfile html java javascript json kotlin lua luadoc markdown markdown_inline printf python rust toml tsx typescript vim vimdoc yaml"
+MASON_PKGS="angular-language-server bash-language-server clangd clang-format cmake-language-server cmakelint codelldb css-lsp debugpy dockerfile-language-server eslint_d google-java-format htmlhint html-lsp intelephense jdtls js-debug-adapter jsonlint json-lsp julia-lsp ktfmt ktlint lua-language-server markdownlint marksman mypy prettierd pyright qmlls ruff rust-analyzer serve-d stylelint stylua taplo typescript-language-server yaml-language-server yamllint"
+TS_PARSERS="bash c cmake cpp css d dockerfile html java javascript json julia kotlin lua luadoc markdown markdown_inline printf python rust toml tsx typescript vim vimdoc yaml"
 
 CHECK_ONLY=0
 [ "${1:-}" = "--check" ] && CHECK_ONLY=1
@@ -29,6 +29,7 @@ need gcc "compilar parsers treesitter"
 need node "LSPs Mason"
 need python3 "pyright/ruff/debugpy"
 need java "jdtls (ideal JDK 25+)"
+have julia || echo "aviso: falta julia (juliaup: curl -fsSL https://install.julialang.org | sh)"
 have rg || echo "aviso: falta rg (telescope live-grep)"
 have tree-sitter || echo "aviso: falta tree-sitter CLI (npm i -g tree-sitter-cli)"
 

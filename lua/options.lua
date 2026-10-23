@@ -28,6 +28,9 @@ do
   for _, d in ipairs(vim.fn.glob(vim.fn.expand "~/.gem/ruby/*/bin", true, true)) do
     table.insert(cands, d)
   end
+  for _, d in ipairs({ vim.fn.expand "~/.juliaup/bin" }) do
+    table.insert(cands, d)
+  end
   for _, d in ipairs(cands) do
     if vim.fn.isdirectory(d) == 1 and not string.find(":" .. vim.env.PATH .. ":", ":" .. d .. ":", 1, true) then
       vim.env.PATH = d .. ":" .. vim.env.PATH

@@ -24,6 +24,7 @@ local servers = {
   "marksman", -- Markdown
   "dockerls", -- Dockerfile
   "serve_d", -- D language
+  "julials", -- Julia
 }
 
 vim.lsp.enable(servers)
