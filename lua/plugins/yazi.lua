@@ -2,9 +2,9 @@ return {
   "mikavilpas/yazi.nvim",
   event = "VeryLazy",
   keys = {
-    -- <leader>e (espacio + e) para abrir Yazi (reemplaza NvimTree)
+    -- <leader>ey para abrir Yazi (reemplaza NvimTree)
     {
-      "<leader>e",
+      "<leader>ey",
       function()
         require("yazi").yazi()
       end,
@@ -16,6 +16,9 @@ return {
     vim.g.loaded_netrwPlugin = 1
     vim.g.loaded_netrw = 1
   end,
+    -- Previewers (carpeta/binario/imagen): config compartida en ~/.config/yazi/yazi.toml
+    -- (vale para yazi de terminal y para este). Dentro de nvim :term no hay
+    -- graficos kitty (limite upstream) -> imagen por Chafa; en kitty directo Kgp.
     opts = {
     -- Abrir Yazi automáticamente al abrir un directorio (nvim .)
     open_for_directories = true,

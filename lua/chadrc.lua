@@ -15,6 +15,9 @@ M.base46 = {
 
 -- NvChad custom statusline with opencode integration
 M.ui = {
+	tabufline = {
+		enabled = false,
+	},
 	statusline = {
 		theme = "default",
 		modules = {

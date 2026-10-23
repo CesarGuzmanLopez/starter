@@ -57,7 +57,12 @@ package.cpath = luarocks_lib .. ";" .. package.cpath
 -- Resaltar la linea activa completa. El fondo de CursorLine se calcula en
 -- configs/highlights.lua como "un poco mas claro que el fondo del tema" para
 -- no tapar el color de los strings.
-vim.opt.cursorlineopt = "line"
+vim.opt.cursorline = true -- renglon actual con fondo distinto
+vim.opt.cursorlineopt = "line" -- todo el renglon, no solo el numero
+
+-- Sin pestanas visibles: ni tabufline ni tabline nativo.
+vim.opt.showtabline = 0
+vim.opt.tabline = ""
 
 -- Click derecho (boton secundario): sin menu contextual de Neovim.
 -- El comportamiento (copiar/pegar) se define en lua/mappings.lua.
@@ -71,7 +76,9 @@ vim.opt.confirm = true -- pedir confirmacion al salir sin guardar
 vim.opt.swapfile = false
 vim.opt.backup = false
 vim.opt.writebackup = false
+vim.opt.undofile = true -- undo persistente: puedes deshacer recargas externas con u
 vim.opt.list = true
 vim.opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
 vim.opt.pumheight = 12
-vim.opt.autoread = true
+vim.opt.autoread = true -- recarga si otro programa toca el archivo
+vim.opt.updatetime = 500 -- CursorHold rapido: cambios externos se ven en vivo

@@ -44,6 +44,37 @@ local function cursorline_bg(dark)
   return dark and "#12141a" or "#e4e4ec"
 end
 
+---Luminancia relativa (WCAG simplificada) 0..1.
+local function luminance_hex(hex)
+  hex = tostring(hex or ""):gsub("^#", "")
+  if #hex < 6 then return nil end
+  local r, g, b = tonumber(hex:sub(1, 2), 16), tonumber(hex:sub(3, 4), 16), tonumber(hex:sub(5, 6), 16)
+  if not (r and g and b) then return nil end
+  local function lin(c)
+    c = c / 255
+    return c <= 0.04045 and c / 12.92 or ((c + 0.055) / 1.055) ^ 2.4
+  end
+  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b)
+end
+
+---Sube la luminosidad de un grupo hasta que sea legible en fondo oscuro.
+---No toca bg, solo fg (los grupos treesitter se enlazan a Comment aparte).
+local function brighten_fg(group, min_lum, step)
+  local ok, cur = pcall(vim.api.nvim_get_hl, 0, { name = group, link = false })
+  if not ok or cur.fg == nil then return end
+  local okc, colors = pcall(require, "base46.colors")
+  if not okc or not colors or not colors.change_hex_lightness then return end
+  local hex = string.format("#%06x", cur.fg)
+  for _ = 1, 12 do
+    local lum = luminance_hex(hex)
+    if not lum or lum >= min_lum then break end
+    hex = colors.change_hex_lightness(hex, step or 10)
+  end
+  cur.link = nil
+  cur.fg = hex
+  pcall(vim.api.nvim_set_hl, 0, group, cur)
+end
+
 ---Transparencia activa en nvconfig (chadrc).
 local function transparent()
   local ok, nv = pcall(require, "nvconfig")
@@ -76,14 +107,36 @@ function M.apply()
   local dark = vim.o.background ~= "light"
   local transp = transparent()
 
-  -- Con transparencia, glassy deja CursorLine en bg=NONE: no pisarlo con un
-  -- color solido o la linea actual pierde la transparencia en cada tema.
-  if transp then
-    vim.api.nvim_set_hl(0, "CursorLine", { bg = "NONE" })
-  else
-    vim.api.nvim_set_hl(0, "CursorLine", { bg = cursorline_bg(dark) })
-  end
+  -- Renglon actual siempre con fondo: translucido no se nota,
+  -- asi que va solido sutil aunque haya transparencia.
+  vim.api.nvim_set_hl(0, "CursorLine", { bg = cursorline_bg(dark) })
   vim.api.nvim_set_hl(0, "CursorLineNr", { bold = true })
+
+  -- Contraste minimo en oscuro: comentarios y grises que vienen casi negros
+  -- (#4e4d5d, #474656...) son ilegibles sobre terminal oscura + transparencia.
+  -- En claro no se toca (ahi se ve bien).
+  if dark then
+    for _, g in ipairs({
+      "Comment",
+      "LineNr",
+      "LineNrAbove",
+      "LineNrBelow",
+      "NonText",
+      "EndOfBuffer",
+      "LspInlayHint",
+      "Folded",
+      "DiagnosticUnnecessary",
+    }) do
+      brighten_fg(g, 0.18, 10)
+    end
+    -- Treesitter sigue a Comment via link. Defer: algo (base46/treesitter)
+    -- re-define @comment despues del apply inicial; al final del loop ganamos.
+    vim.schedule(function()
+      for _, g in ipairs({ "@comment", "@lsp.type.comment", "@string.documentation" }) do
+        pcall(vim.api.nvim_set_hl, 0, g, { link = "Comment" })
+      end
+    end)
+  end
 
   -- Visual: invierte fg/bg sin depender del bg del tema (no se mezcla).
   vim.api.nvim_set_hl(0, "Visual", { reverse = true })

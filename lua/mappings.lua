@@ -1,5 +1,8 @@
 require "nvchad.mappings"
 
+-- <leader>e queda como prefijo: ey=Yazi, ee=explorer izquierdo.
+pcall(vim.keymap.del, "n", "<leader>e")
+
 -- add yours here
 
 local map = vim.keymap.set

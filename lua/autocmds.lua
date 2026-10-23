@@ -66,49 +66,33 @@ vim.api.nvim_create_autocmd("FileType", {
 })
 
 -------------------------------
--- Auto-reload files modified externally (opencode, git, etc.)
+-- Auto-reload en vivo + undo (edicion externa: opencode, git, etc.)
 -------------------------------
 vim.o.autoread = true
 
 local reload_group = vim.api.nvim_create_augroup("AutoReload", { clear = true })
 
--- When Neovim gains focus, reload all changed files
-vim.api.nvim_create_autocmd("FocusGained", {
-  group = reload_group,
-  callback = function()
-    vim.cmd "checktime"
-  end,
-})
-
--- When a buffer is entered, check if the file changed on disk
-vim.api.nvim_create_autocmd("BufEnter", {
+-- Poll en vivo: foco, entrar al buffer o pausa (CursorHold) -> checktime.
+-- Si no hay cambios locales, autoread recarga solo y puedes deshacer con u.
+vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI", "TermClose" }, {
   group = reload_group,
   callback = function(args)
-    if vim.bo[args.buf].buftype == "" then
-      vim.cmd "checktime"
+    local buf = args.buf or vim.api.nvim_get_current_buf()
+    if vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].buftype == "" then
+      vim.cmd("checktime")
     end
   end,
 })
 
--- When a buffer loses focus, also check
-vim.api.nvim_create_autocmd("BufLeave", {
+-- Aviso post-recarga: confirma que puedes deshacer.
+vim.api.nvim_create_autocmd("FileChangedShellPost", {
   group = reload_group,
   callback = function(args)
-    if vim.bo[args.buf].buftype == "" and vim.bo[args.buf].modified then
-      vim.cmd "checktime"
-    end
-  end,
-})
-
--- Handle file changed on disk: auto-reload if no local modifications
-vim.api.nvim_create_autocmd("FileChangedShell", {
-  group = reload_group,
-  callback = function(args)
-    vim.api.nvim_echo({
-      { "File changed on disk: " .. vim.fn.fnamemodify(args.match, ":t"), "WarningMsg" },
-    }, true, {})
-    -- Automatically reload (discards no changes since we don't edit externally)
-    vim.cmd "edit!"
+    vim.notify(
+      "Recargado (cambio externo): " .. vim.fn.fnamemodify(args.match, ":t") .. " — pulsa u para deshacer",
+      vim.log.levels.INFO,
+      { title = "AutoReload", timeout = 3000 }
+    )
   end,
 })
 
@@ -129,6 +113,15 @@ vim.api.nvim_create_autocmd("User", {
   group = hl_group,
   pattern = "NvThemeReload",
   callback = apply_ui_highlights,
+})
+
+-- Re-aplica diferido al mostrar un buffer: garantiza que los links
+-- @comment -> Comment ganen a definiciones tardias de base46/treesitter.
+vim.api.nvim_create_autocmd({ "BufReadPost", "FileType" }, {
+  group = hl_group,
+  callback = function()
+    vim.schedule(apply_ui_highlights)
+  end,
 })
 
 -- Image viewer: intercept image files and display with kitten icat in a floating window
