@@ -124,6 +124,16 @@ vim.api.nvim_create_autocmd({ "BufReadPost", "FileType" }, {
   end,
 })
 
+-- Al guardar cualquier lua del config (el ReloadNvChad de NvChad ya recarga
+-- el modulo), re-aplica highlights para ver el cambio sin reiniciar.
+vim.api.nvim_create_autocmd("BufWritePost", {
+  group = hl_group,
+  pattern = vim.fn.stdpath("config") .. "/lua/**/*.lua",
+  callback = function()
+    vim.schedule(apply_ui_highlights)
+  end,
+})
+
 -- Image viewer: intercept image files and display with kitten icat in a floating window
 local image_group = vim.api.nvim_create_augroup("ImageViewer", { clear = true })
 

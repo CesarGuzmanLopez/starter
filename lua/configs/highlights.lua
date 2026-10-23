@@ -116,14 +116,21 @@ function M.apply()
   -- (#4e4d5d, #474656...) son ilegibles sobre terminal oscura + transparencia.
   -- En claro no se toca (ahi se ve bien).
   if dark then
+    -- Comentarios: el tema los trae casi negros (#4e4d5d). Color fijo legible;
+    -- vale para bash/sh, python, c/cpp (gcc/g++), node/ts, lua: todos usan @comment.
+    vim.api.nvim_set_hl(0, "Comment", { fg = "#a6adc8" })
+    -- Palabras clave en comentarios: cada una su color (antes casi negras).
+    vim.api.nvim_set_hl(0, "@comment.todo", { fg = "#f9e2af", bold = true })
+    vim.api.nvim_set_hl(0, "@comment.note", { fg = "#89b4fa", bold = true })
+    vim.api.nvim_set_hl(0, "@comment.warning", { fg = "#fab387", bold = true })
+    vim.api.nvim_set_hl(0, "@comment.danger", { fg = "#f38ba8", bold = true })
+    vim.api.nvim_set_hl(0, "@comment.error", { link = "@comment.danger" })
     for _, g in ipairs({
-      "Comment",
       "LineNr",
       "LineNrAbove",
       "LineNrBelow",
       "NonText",
       "EndOfBuffer",
-      "LspInlayHint",
       "Folded",
       "DiagnosticUnnecessary",
     }) do
@@ -136,6 +143,20 @@ function M.apply()
         pcall(vim.api.nvim_set_hl, 0, g, { link = "Comment" })
       end
     end)
+  end
+
+  -- Notas virtuales de diagnostico (shellcheck "Note that...", etc.): color
+  -- azulado propio + italica y sin fondo, para que no parezcan codigo.
+  -- Solo Info/Hint (notas); Warn/Error conservan su color de alerta.
+  vim.api.nvim_set_hl(0, "DiagnosticVirtualTextInfo", { fg = "#7fb5d5", bg = "NONE", italic = true })
+  vim.api.nvim_set_hl(0, "DiagnosticVirtualTextHint", { fg = "#7fb5d5", bg = "NONE", italic = true })
+
+  -- Inlay hints (notas del LSP inline): color azulado propio + italica y sin
+  -- fondo, para que no parezcan ni codigo ni comentarios grises.
+  if dark then
+    vim.api.nvim_set_hl(0, "LspInlayHint", { fg = "#7fb5d5", bg = "NONE", italic = true })
+  else
+    vim.api.nvim_set_hl(0, "LspInlayHint", { fg = "#3f6d96", bg = "NONE", italic = true })
   end
 
   -- Visual: invierte fg/bg sin depender del bg del tema (no se mezcla).
