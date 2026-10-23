@@ -30,14 +30,27 @@ Configuracion personal de **Neovim** basada en [NvChad v2.5](https://github.com/
 
 ```bash
 # Neovim >= 0.11 (recomendado 0.12)
-# Node.js (para LSPs como ts_ls, intelephese, etc.)
-# Python 3 (para pyright, ruff, etc.)
-# Rust (para rust_analyzer)
-# kitty (para image viewer)
-# yazi (para explorador de archivos)
+# git, curl, gcc (parsers treesitter), node, python3, java 25+ (jdtls)
+# Opcionales: kitty (image viewer), yazi (explorador), rg (live-grep)
 ```
 
-### Clone
+### Clone + bootstrap (recomendado)
+
+```bash
+git clone https://github.com/CesarGuzmanLopez/starter.git ~/.config/nvim
+~/.config/nvim/scripts/bootstrap.sh
+nvim
+```
+
+El script instala: providers (pynvim, neovim npm/gem, jsregexp),
+plugins (Lazy sync), 37 paquetes Mason, symlink de jdtls y 25 parsers
+treesitter. Es idempotente. Solo verificar que falta:
+
+```bash
+~/.config/nvim/scripts/bootstrap.sh --check
+```
+
+### Clone manual (sin script)
 
 ```bash
 git clone https://github.com/CesarGuzmanLopez/starter.git ~/.config/nvim
@@ -45,7 +58,13 @@ nvim --headless "+Lazy! sync" +qa
 nvim
 ```
 
-Al abrir Neovim, Mason instalara automaticamente los LSPs y linters. Puedes verificar con `:checkhealth`.
+Luego instalar a mano los paquetes Mason (`:Mason`), parsers (`:TSInstall`)
+y providers. Puedes verificar con `:checkhealth`.
+
+> Nota: si el paquete `pyenv` esta instalado pero nunca se inicializo
+> (`~/.pyenv` no existe), `:checkhealth` muestra 1 ⚠️ informativo
+> ("Root does not exist... Ignoring pyenv"). Es benigno: el provider de
+> Python usa `g:python3_host_prog=/usr/bin/python3` directamente.
 
 ---
 

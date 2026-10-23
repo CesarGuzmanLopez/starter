@@ -10,8 +10,30 @@ vim.g.loaded_perl_provider = 0
 
 -- Hosts explicitos: evita la busqueda via pyenv (raiz inexistente) y expone
 -- neovim-ruby-host (gem --user-install) al PATH interno de Neovim.
+-- Las rutas del gem varian (GEM_HOME, XDG, version de ruby): se prueban candidatas.
 vim.g.python3_host_prog = "/usr/bin/python3"
-vim.env.PATH = vim.fn.expand "~/.local/share/gem/ruby/3.4.0/bin" .. ":" .. vim.env.PATH
+do
+  local cands = {}
+  if vim.env.GEM_HOME and vim.env.GEM_HOME ~= "" then
+    table.insert(cands, vim.env.GEM_HOME .. "/bin")
+  end
+  if vim.env.XDG_DATA_HOME and vim.env.XDG_DATA_HOME ~= "" then
+    for _, d in ipairs(vim.fn.glob(vim.env.XDG_DATA_HOME .. "/gem/ruby/*/bin", true, true)) do
+      table.insert(cands, d)
+    end
+  end
+  for _, d in ipairs(vim.fn.glob(vim.fn.expand "~/.local/share/gem/ruby/*/bin", true, true)) do
+    table.insert(cands, d)
+  end
+  for _, d in ipairs(vim.fn.glob(vim.fn.expand "~/.gem/ruby/*/bin", true, true)) do
+    table.insert(cands, d)
+  end
+  for _, d in ipairs(cands) do
+    if vim.fn.isdirectory(d) == 1 and not string.find(":" .. vim.env.PATH .. ":", ":" .. d .. ":", 1, true) then
+      vim.env.PATH = d .. ":" .. vim.env.PATH
+    end
+  end
+end
 
 -- add yours here!
 -- Use system clipboard
