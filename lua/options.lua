@@ -1,5 +1,18 @@
 require "nvchad.options"
 
+-- Providers: NvChad los desactiva (loaded_*=0). Los reactivamos porque los
+-- clientes estan instalados (pynvim, neovim npm, neovim gem). Perl queda
+-- desactivado: no hay plugins remotos perl y Neovim::Ext no esta en @INC.
+vim.g.loaded_node_provider = nil
+vim.g.loaded_python3_provider = nil
+vim.g.loaded_ruby_provider = nil
+vim.g.loaded_perl_provider = 0
+
+-- Hosts explicitos: evita la busqueda via pyenv (raiz inexistente) y expone
+-- neovim-ruby-host (gem --user-install) al PATH interno de Neovim.
+vim.g.python3_host_prog = "/usr/bin/python3"
+vim.env.PATH = vim.fn.expand "~/.local/share/gem/ruby/3.4.0/bin" .. ":" .. vim.env.PATH
+
 -- add yours here!
 -- Use system clipboard
 vim.opt.clipboard = "unnamedplus"

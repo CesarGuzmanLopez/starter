@@ -23,6 +23,9 @@ M.setup = function()
     return nil
   end
 
+  local jdk27 = find_jdk "27"
+  local jdk26 = find_jdk "26"
+  local jdk25 = find_jdk "25"
   local jdk22 = find_jdk "22"
   local jdk21 = find_jdk "21"
   local jdk17 = find_jdk "17"
@@ -53,9 +56,14 @@ M.setup = function()
     },
   }
 
+  -- jdtls reciente exige JVM 25+ para el propio servidor: se usa el JDK
+  -- mas nuevo disponible como ejecutable (los runtimes de proyecto van aparte).
+  local jdk_newest = jdk27 or jdk26 or jdk25 or jdk22 or jdk21 or jdk17
+  local java_bin = jdk_newest and (jdk_newest .. "/bin/java") or "java"
+
   local config = {
     cmd = {
-      "java",
+      java_bin,
       "-Declipse.application=org.eclipse.jdt.ls.core.id1",
       "-Dosgi.bundles.defaultStartLevel=4",
       "-Declipse.product=org.eclipse.jdt.ls.core.product",
@@ -124,6 +132,9 @@ M.setup = function()
 
   -- Insert detected JDK runtime args into cmd
   local runtime_args = {}
+  if jdk27 then table.insert(runtime_args, "-Djava.configuration.runtimes.JAVA_27=" .. jdk27) end
+  if jdk26 then table.insert(runtime_args, "-Djava.configuration.runtimes.JAVA_26=" .. jdk26) end
+  if jdk25 then table.insert(runtime_args, "-Djava.configuration.runtimes.JAVA_25=" .. jdk25) end
   if jdk22 then table.insert(runtime_args, "-Djava.configuration.runtimes.JAVA_22=" .. jdk22) end
   if jdk21 then table.insert(runtime_args, "-Djava.configuration.runtimes.JAVA_21=" .. jdk21) end
   if jdk17 then table.insert(runtime_args, "-Djava.configuration.runtimes.JAVA_17=" .. jdk17) end
@@ -133,6 +144,9 @@ M.setup = function()
 
   -- Populate runtimes from detected JDKs
   local runtimes = {}
+  if jdk27 then table.insert(runtimes, { name = "JavaSE-27", path = jdk27 .. "/" }) end
+  if jdk26 then table.insert(runtimes, { name = "JavaSE-26", path = jdk26 .. "/" }) end
+  if jdk25 then table.insert(runtimes, { name = "JavaSE-25", path = jdk25 .. "/" }) end
   if jdk22 then table.insert(runtimes, { name = "JavaSE-22", path = jdk22 .. "/" }) end
   if jdk21 then table.insert(runtimes, { name = "JavaSE-21", path = jdk21 .. "/" }) end
   if jdk17 then table.insert(runtimes, { name = "JavaSE-17", path = jdk17 .. "/" }) end
