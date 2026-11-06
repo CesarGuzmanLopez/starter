@@ -62,9 +62,22 @@ if telescope_ok then
   map("n", "<leader>cm", in_git_repo(telescope.git_commits), { desc = "Telescope git commits" })
 
   -- Exploracion (movida de ff/fw/fb): buffers, difusa, por nombre de archivo.
+  -- Raiz del proyecto (git) con fallback a cwd; excluye .git y node_modules.
+  local function project_root()
+    local root = vim.fn.system("git rev-parse --show-toplevel 2>/dev/null"):gsub("\n", "")
+    if vim.v.shell_error ~= 0 or root == "" then
+      return vim.fn.getcwd()
+    end
+    return root
+  end
+  local ignore = { ".git/", "node_modules/" }
   map("n", "<leader>eb", telescope.buffers, { desc = "Buffers abiertos" })
-  map("n", "<leader>ef", telescope.live_grep, { desc = "Búsqueda difusa (texto)" })
-  map("n", "<leader>ew", telescope.find_files, { desc = "Buscar por nombre de archivo" })
+  map("n", "<leader>ef", function()
+    telescope.live_grep({ cwd = project_root(), file_ignore_patterns = ignore })
+  end, { desc = "Búsqueda difusa (texto, proyecto)" })
+  map("n", "<leader>ew", function()
+    telescope.find_files({ cwd = project_root(), hidden = true, file_ignore_patterns = ignore })
+  end, { desc = "Buscar por nombre de archivo (proyecto)" })
 end
 
 -------------------------------

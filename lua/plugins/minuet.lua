@@ -6,6 +6,22 @@ return {
   -- buffer) los atajos no quedan en los archivos ya abiertos.
   lazy = false,
   config = function()
+    -- Fallback: kitty `proyectos open` hereda env gráfico sin .bashrc.
+    -- Si falta GROQ_API_KEY, carga ~/oh-my-bash-fork/.env (0600, no se loguea).
+    if not os.getenv "GROQ_API_KEY" then
+      local dotenv = vim.fn.expand "~/oh-my-bash-fork/.env"
+      if vim.uv.fs_stat(dotenv) then
+        for line in io.lines(dotenv) do
+        local k, v = line:match "^%s*export%s+(GROQ_[A-Z_]+)%s*=%s*\"?([^\"#]+)\"?%s*$"
+        if k and v then
+          v = v:gsub("%s+$", "")
+          if vim.env[k] == nil or vim.env[k] == "" then
+            vim.env[k] = v
+          end
+        end
+      end
+      end
+    end
     -- Groq (API compatible con OpenAI). El modelo se resuelve asi:
     --   GROQ_MODEL    -> id del modelo (default: openai/gpt-oss-20b, "Groq 20B")
     --   GROQ_BASE_URL -> base URL de la API (default: https://api.groq.com/openai/v1)
