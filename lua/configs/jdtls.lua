@@ -100,6 +100,9 @@ M.setup = function()
       "-Declipse.application=org.eclipse.jdt.ls.core.id1",
       "-Dosgi.bundles.defaultStartLevel=4",
       "-Declipse.product=org.eclipse.jdt.ls.core.product",
+      -- Lombok: sin el agente, jdtls no ve los getters/setters generados
+      -- (@Data) y marca "The method getId() is undefined" en todo el codigo.
+      "-javaagent:" .. jdtls_path .. "/lombok.jar",
       "-jar",
       launcher,
       "-configuration",
@@ -184,8 +187,10 @@ M.setup = function()
   if jdk22 then table.insert(runtime_args, "-Djava.configuration.runtimes.JAVA_22=" .. jdk22) end
   if jdk21 then table.insert(runtime_args, "-Djava.configuration.runtimes.JAVA_21=" .. jdk21) end
   if jdk17 then table.insert(runtime_args, "-Djava.configuration.runtimes.JAVA_17=" .. jdk17) end
+  -- Los -D son opciones de la JVM: van antes de -jar, no despues (antes se
+  -- insertaban en la posicion 5+i, o sea detras de -jar, donde se ignoran).
   for i, arg in ipairs(runtime_args) do
-    table.insert(config.cmd, 5 + i, arg)
+    table.insert(config.cmd, 1 + i, arg)
   end
 
   -- Populate runtimes from detected JDKs
