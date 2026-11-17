@@ -66,15 +66,28 @@ vim.api.nvim_create_autocmd("FileType", {
 })
 
 -------------------------------
--- Auto-reload en vivo + undo (edicion externa: opencode, git, etc.)
+-- Auto-reload en vivo + undo (edicion externa: IA, opencode, git, etc.)
 -------------------------------
 vim.o.autoread = true
 
 local reload_group = vim.api.nvim_create_augroup("AutoReload", { clear = true })
 
--- Poll en vivo: foco, entrar al buffer o pausa (CursorHold) -> checktime.
--- Si no hay cambios locales, autoread recarga solo y puedes deshacer con u.
-vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI", "TermClose" }, {
+-- Refresca el estado git del arbol (los ✗ de "sin commitear") sin colapsar
+-- las carpetas abiertas.
+local function refresh_tree_git()
+  local ok, api = pcall(require, "nvim-tree.api")
+  if not ok then
+    return
+  end
+  pcall(function()
+    if api.tree.is_visible() then
+      api.git.reload()
+    end
+  end)
+end
+
+-- Recarga inmediata al volver al foco / entrar a un buffer / pausa.
+vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "WinEnter", "CursorHold", "CursorHoldI", "TermClose", "TermLeave" }, {
   group = reload_group,
   callback = function(args)
     local buf = args.buf or vim.api.nvim_get_current_buf()
@@ -84,7 +97,29 @@ vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHo
   end,
 })
 
--- Aviso post-recarga: confirma que puedes deshacer.
+-- Timer: vigila TODOS los buffers cargados, aunque no tengan el foco. Con
+-- herramientas de IA que escriben archivos en segundo plano es la unica forma
+-- de ver el cambio sin tocar la ventana.
+local reload_timer = vim.uv.new_timer()
+reload_timer:start(2000, 2000, function()
+  vim.schedule(function()
+    if vim.fn.getcmdwintype() ~= "" then
+      return
+    end
+    for _, b in ipairs(vim.api.nvim_list_bufs()) do
+      if
+        vim.api.nvim_buf_is_loaded(b)
+        and vim.bo[b].buftype == ""
+        and vim.bo[b].buflisted
+        and vim.api.nvim_buf_get_name(b) ~= ""
+      then
+        pcall(vim.cmd, "silent! checktime " .. b)
+      end
+    end
+  end)
+end)
+
+-- Aviso post-recarga: confirma que puedes deshacer + refresca el arbol.
 vim.api.nvim_create_autocmd("FileChangedShellPost", {
   group = reload_group,
   callback = function(args)
@@ -93,8 +128,51 @@ vim.api.nvim_create_autocmd("FileChangedShellPost", {
       vim.log.levels.INFO,
       { title = "AutoReload", timeout = 3000 }
     )
+    refresh_tree_git()
   end,
 })
+
+-- Buffer con cambios propios + archivo cambiado en disco: no se pisa nada.
+-- Aviso explicito (con IA es facil acabar con dos versiones divergentes).
+vim.api.nvim_create_autocmd("FileChangedShell", {
+  group = reload_group,
+  callback = function(args)
+    vim.v.fcs_choice = ""
+    vim.notify(
+      ("%s cambió en disco y el buffer tiene cambios sin guardar.\n: e! para recargar (pierdes lo local) · :w para sobrescribir"):format(
+        vim.fn.fnamemodify(args.match, ":t")
+      ),
+      vim.log.levels.WARN,
+      { title = "AutoReload", timeout = 8000 }
+    )
+  end,
+})
+
+-- Refresco manual de todo: recarga los buffers sin cambios locales y avisa.
+vim.api.nvim_create_user_command("ReloadAll", function()
+  local n = 0
+  for _, b in ipairs(vim.api.nvim_list_bufs()) do
+    if
+      vim.api.nvim_buf_is_loaded(b)
+      and vim.bo[b].buftype == ""
+      and vim.bo[b].buflisted
+      and vim.api.nvim_buf_get_name(b) ~= ""
+    then
+      if not vim.bo[b].modified then
+        vim.cmd("silent! checktime " .. b)
+        n = n + 1
+      else
+        vim.notify(
+          vim.fn.fnamemodify(vim.api.nvim_buf_get_name(b), ":t") .. ": cambios locales, no recargado",
+          vim.log.levels.WARN,
+          { title = "ReloadAll" }
+        )
+      end
+    end
+  end
+  refresh_tree_git()
+  vim.notify(n .. " buffer(s) comprobados", vim.log.levels.INFO, { title = "ReloadAll" })
+end, { desc = "Revisa cambios externos en todos los buffers y refresca el arbol" })
 
 -- Highlights de UI adaptativos al modo claro/oscuro.
 -- Se re-aplican al cargar y despues de cada recarga de tema de base46
