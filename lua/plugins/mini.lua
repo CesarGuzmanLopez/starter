@@ -49,12 +49,13 @@ return {
       yank = { suffix = "y", options = {} },
     })
 
-    -- mini.indentscope: animación visual del scope de indentación
+    -- mini.indentscope: linea del scope actual. Sin delay ni animacion: dibuja
+    -- al instante (antes esperaba 50ms + 100ms de animacion por buffer).
     require("mini.indentscope").setup({
       symbol = "│",
       draw = {
-        delay = 50,
-        animation = require("mini.indentscope").gen_animation.quadratic({ easing = "out", duration = 100 }),
+        delay = 0,
+        animation = require("mini.indentscope").gen_animation.none(),
         priority = 2,
       },
       options = { try_as_border = true },

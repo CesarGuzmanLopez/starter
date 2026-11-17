@@ -154,6 +154,14 @@ return {
   },
 
   {
+    -- Guias de indentacion (la linea vertical "│" en cada nivel): fuera.
+    -- Es el coste por buffer mas alto del render y en java/kotlin grandes se
+    -- nota. mini.indentscope queda como unica referencia, sin delay.
+    "lukas-reineke/indent-blankline.nvim",
+    enabled = false,
+  },
+
+  {
     "3rd/image.nvim",
     ft = { "markdown", "html", "css", "vimwiki" },
     config = function()
