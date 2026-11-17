@@ -143,6 +143,17 @@ return {
   },
 
   {
+    -- Progreso LSP visible (import Maven, indexado...): bottom-right + historial.
+    -- Carga con el primer LSP, que es cuando importa.
+    "j-hui/fidget.nvim",
+    event = "LspAttach",
+    opts = {
+      progress = { display = { done_ttl = 5 } },
+      notification = { override_vim_notify = true },
+    },
+  },
+
+  {
     "3rd/image.nvim",
     ft = { "markdown", "html", "css", "vimwiki" },
     config = function()

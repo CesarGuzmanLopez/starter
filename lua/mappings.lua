@@ -36,6 +36,9 @@ end, {
   bang = true,
   desc = "Close current buffer (or quit if last). :Q! forces discard.",
 })
+-- :q cierra solo el buffer actual (= :Q); :qa sigue saliendo de todo.
+-- Solo expande cuando la linea es exactamente `q`: no toca :qa, :g//q, :cq, etc.
+vim.cmd([[cabbrev q <c-r>=(getcmdtype()==':' && getcmdline()=='q' ? 'Q' : 'q')<CR>]])
 
 map("n", ";", ":", { desc = "CMD enter command mode" })
 map("i", "jk", "<ESC>")

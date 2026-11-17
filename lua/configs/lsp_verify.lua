@@ -8,7 +8,7 @@ local REQUIRED = {
   python = { pkg = "pyright", bins = { "pyright-langserver", "pyright" }, lsp = "pyright" },
   ["c++"] = { pkg = "clangd", bins = { "clangd" }, lsp = "clangd" },
   kotlin = { pkg = "kotlin-language-server", bins = { "kotlin-language-server" }, lsp = "kotlin_language_server" },
-  cmake = { pkg = "cmake-language-server", bins = { "cmake-language-server" }, lsp = "cmake" },
+  cmake = { pkg = "neocmakelsp", bins = { "neocmakelsp" }, lsp = "neocmake" },
   java = { pkg = "jdtls", bins = { "jdtls" }, lsp = "jdtls" },
   rust = { pkg = "rust-analyzer", bins = { "rust-analyzer" }, lsp = "rust_analyzer" },
 }

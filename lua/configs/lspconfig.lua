@@ -8,7 +8,10 @@ local servers = {
   "pyright",
   "ts_ls",
   "angularls", -- Angular language server
-  "cmake", -- CMake language server
+  -- CMake: cmake-language-server (Mason) trae pygls>=1 incompatible
+  -- ("cannot import name LanguageServer"). neocmake = binario nativo
+  -- (neocmakelsp), sin Python.
+  "neocmake", -- CMake
   -- "kotlin_language_server",  -- Kotlin (configurado aparte abajo)
   "intelephense", -- PHP
   "qmlls", -- QML

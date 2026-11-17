@@ -75,6 +75,8 @@ M.setup = function()
   -- mismo proyecto compartian `-data` y el segundo jdtls no lograba el lock
   -- (quedaba solo null-ls y `gd` fallaba). El basename se sanitiza.
   local root_markers = {
+    "mvnw",
+    "gradlew",
     "build.gradle",
     "build.gradle.kts",
     "pom.xml",
@@ -105,7 +107,24 @@ M.setup = function()
       "-data",
       home .. "/.cache/jdtls/workspace/" .. workspace_name,
     },
-    root_dir = root_finder,
+    -- STRING, no funcion: vim.lsp.start exige root_dir resuelto para
+    -- registrar el workspace folder. Con una funcion el folder quedaba
+    -- vacio, jdtls no veia el pom.xml y marcaba el .java como
+    -- "non-project file, only syntax errors are reported".
+    root_dir = clean_root,
+    -- language/status ("Importing Maven project 45%", "Ready"...) iba a :echo
+    -- y se perdia; a vim.notify persiste en :messages y en Fidget.
+    handlers = {
+      ["language/status"] = function(_, result)
+        if result and result.message and result.message ~= "" then
+          vim.notify(
+            result.message,
+            result.type == "Error" and vim.log.levels.ERROR or vim.log.levels.INFO,
+            { title = "jdtls" }
+          )
+        end
+      end,
+    },
     capabilities = capabilities,
     settings = {
       java = {
@@ -180,6 +199,57 @@ M.setup = function()
   config.settings.java.configuration.runtimes = runtimes
 
   jdtls.start_or_attach(config)
+
+  -- Si el archivo no esta en ningun sourcePath (proyecto sin importar),
+  -- jdtls solo reporta "non-project file". Dispara el import una vez por
+  -- sesion y avisa; el progreso se ve con fidget + :messages.
+  if not _G._jdt_auto_import_setup then
+    _G._jdt_auto_import_setup = true
+    local function do_import(client)
+      client:request("workspace/executeCommand", { command = "java.project.import" }, function(err)
+        if err then
+          vim.notify("JdtImport: " .. tostring(err.message or err.code), vim.log.levels.ERROR, { title = "jdtls" })
+        else
+          vim.notify("Importando proyecto Maven/Gradle… (fidget, abajo-derecha)", vim.log.levels.WARN, { title = "jdtls" })
+        end
+      end, 0)
+    end
+    local function import_cmd()
+      local clients = vim.lsp.get_clients({ name = "jdtls" })
+      if #clients == 0 then
+        vim.notify("jdtls no activo", vim.log.levels.ERROR, { title = "jdtls" })
+        return
+      end
+      do_import(clients[1])
+    end
+    pcall(vim.api.nvim_create_user_command, "JdtImport", import_cmd, { desc = "Importar proyecto Maven/Gradle en jdtls" })
+    vim.defer_fn(function()
+      if _G._jdt_auto_import_done then
+        return
+      end
+      local buf = vim.api.nvim_get_current_buf()
+      if not vim.api.nvim_buf_is_valid(buf) or vim.bo[buf].filetype ~= "java" then
+        return
+      end
+      local clients = vim.lsp.get_clients({ name = "jdtls", bufnr = buf })
+      if #clients == 0 then
+        return
+      end
+      _G._jdt_auto_import_done = true
+      clients[1]:request("workspace/executeCommand", {
+        command = "java.project.getSettings",
+        arguments = { vim.uri_from_bufnr(buf), { "org.eclipse.jdt.ls.core.sourcePaths" } },
+      }, function(err, res)
+        if err then
+          return
+        end
+        local paths = res and res["org.eclipse.jdt.ls.core.sourcePaths"]
+        if not paths or #paths == 0 then
+          do_import(clients[1])
+        end
+      end, buf)
+    end, 10000)
+  end
 end
 
 return M
