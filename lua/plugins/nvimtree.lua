@@ -33,12 +33,10 @@ return {
     base.renderer.icons.show = vim.tbl_extend("force", base.renderer.icons.show or {}, {
       folder_arrow = true, -- chevron junto a la carpeta: se ve el nivel sin sangria
     })
-    base.renderer.icons.glyphs = vim.tbl_extend("force", base.renderer.icons.glyphs or {}, {
-      folder_arrow = {
-        open = "",
-        closed = "",
-        empty = "",
-        empty_open = "",
+    base.renderer.icons.glyphs = vim.tbl_deep_extend("force", base.renderer.icons.glyphs or {}, {
+      folder = {
+        arrow_closed = "",
+        arrow_open = "",
       },
     })
     base.view = vim.tbl_extend("force", base.view or {}, { width = 34 })
