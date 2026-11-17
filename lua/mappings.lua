@@ -128,9 +128,12 @@ vim.api.nvim_create_autocmd("LspAttach", {
     end
 
     -- Navegacion: definicion, hover, referencias
+    bmap("n", "gd", vim.lsp.buf.definition, "Go to definition")
+    bmap("n", "gD", vim.lsp.buf.declaration, "Go to declaration")
     bmap("n", "K", vim.lsp.buf.hover, "Hover documentation")
     bmap("n", "gr", vim.lsp.buf.references, "References")
     bmap("n", "gi", vim.lsp.buf.implementation, "Go to implementation")
+    bmap("n", "<leader>D", vim.lsp.buf.type_definition, "Go to type definition")
 
     -- Diagnosticos: navegar entre errores/warnings
     bmap("n", "[d", vim.diagnostic.goto_prev, "Previous diagnostic")

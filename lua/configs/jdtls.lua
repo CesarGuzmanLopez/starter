@@ -3,9 +3,19 @@ local M = {}
 M.setup = function()
   local jdtls = require "jdtls"
   local home = os.getenv "HOME"
-  local jdtls_path = home .. "/.local/share/jdtls"
+  -- Mason es la fuente principal; fallback al path manual antiguo.
+  local mason_jdtls = home .. "/.local/share/nvim/mason/packages/jdtls"
+  local jdtls_path = vim.fn.isdirectory(mason_jdtls) == 1 and mason_jdtls or (home .. "/.local/share/jdtls")
   local launcher = vim.fn.glob(jdtls_path .. "/plugins/org.eclipse.equinox.launcher_*.jar")
   local config_linux = jdtls_path .. "/config_linux"
+  if launcher == "" or vim.fn.isdirectory(config_linux) == 0 then
+    vim.notify(
+      "[jdtls] No encontrado en " .. jdtls_path .. " (:MasonInstall jdtls)",
+      vim.log.levels.ERROR,
+      { title = "LSP: java" }
+    )
+    return
+  end
 
   local function find_jdk(version)
     local candidates = {

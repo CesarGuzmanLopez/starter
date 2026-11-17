@@ -7,6 +7,7 @@ return {
 
   {
     "neovim/nvim-lspconfig",
+    lazy = false,
     config = function()
       require "configs.lspconfig"
     end,
@@ -135,7 +136,7 @@ return {
 
   {
     "mfussenegger/nvim-jdtls",
-    ft = { "java", "kotlin" },
+    ft = { "java" },
     config = function()
       require("configs.jdtls").setup()
     end,

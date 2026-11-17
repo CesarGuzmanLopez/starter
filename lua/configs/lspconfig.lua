@@ -29,6 +29,23 @@ local servers = {
 
 vim.lsp.enable(servers)
 
+-- Kotlin: kotlin-language-server 1.3.13 rompia en Neovim 0.11+ con
+-- "Expected BEGIN_OBJECT but was BEGIN_ARRAY" en workspace/configuration.
+-- Workaround: anunciar que NO soportamos workspace/configuration para que
+-- el server no la pida. Si Mason no lo tiene instalado, el verificador
+-- (configs.lsp_verify) avisa al arrancar con :MasonInstall.
+do
+  local ok, cmp_caps = pcall(require, "cmp_nvim_lsp")
+  local caps = vim.lsp.protocol.make_client_capabilities()
+  if ok and cmp_caps and cmp_caps.default_capabilities then
+    caps = cmp_caps.default_capabilities(caps)
+  end
+  caps.workspace = caps.workspace or {}
+  caps.workspace.configuration = false
+  vim.lsp.config("kotlin_language_server", { capabilities = caps })
+  vim.lsp.enable "kotlin_language_server"
+end
+
 -- ts_ls: si el proyecto trae un TypeScript sin tsserver.js (p. ej. TS 7 en
 -- ~/.config/opencode), el server local falla en initialize en loop ("Could
 -- not find a valid TypeScript installation"). Se fija un tsserver.path
@@ -44,9 +61,12 @@ do
   end
 end
 
--- NOTA: kotlin-language-server 1.3.13 es incompatible con Neovim 0.12
--- (Error: Expected BEGIN_OBJECT but was BEGIN_ARRAY en workspace/configuration)
--- Solucion: esperar una version actualizada del server o usar vim.lsp.enable
--- vim.lsp.enable("kotlin_language_server")
-
+-- NOTA: kotlin-language-server se habilita abajo con workaround
+-- workspace.configuration=false (ver bloque kotlin). Si falla, el verificador
+-- configs.lsp_verify avisa al arrancar.
 -- read :h vim.lsp.config for changing options of lsp servers
+
+-- Verificador de arranque: si falta server/binario de
+-- python/c++/kotlin/cmake/java/rust, error visible con :MasonInstall.
+-- No rompe el arranque, solo notifica una vez por sesion.
+pcall(require, "configs.lsp_verify")

@@ -1,8 +1,9 @@
 -- lua/plugins/android.lua
 -- Stack Android (Java/Kotlin/XML): parsers, LSP y formatters.
--- NOTA: kotlin-language-server 1.3.13 es incompatible con Neovim 0.12
--- (ver lua/configs/lspconfig.lua): se instala via Mason pero NO se habilita
--- solo (automatic_enable = false). jdtls se configura en configs/jdtls.lua.
+-- kotlin-language-server se habilita en lua/configs/lspconfig.lua con
+-- workaround workspace.configuration=false; se instala via Mason
+-- (automatic_enable = false para no duplicar el enable manual).
+-- jdtls se configura en configs/jdtls.lua.
 return {
   -- Parsers Android (java/kotlin ya vienen de init.lua; aqui se suma xml).
   -- branch=main obligatorio: es la API que espera NvChad v2.5.

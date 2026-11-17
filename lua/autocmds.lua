@@ -23,9 +23,9 @@ local function get_lsp_filetypes()
     end
   end
 
-  -- 2) Servidores desactivados / comentados que aun asi queremos vigilar
+  -- 2) Servidores con config dedicada que igual vigilamos (ej: kotlin).
   local extra = {
-    kotlin = true, -- kotlin_language_server desactivado (incompatible con Nvim 0.12)
+    kotlin = true,
   }
   for k, v in pairs(extra) do
     ft[k] = v
@@ -49,8 +49,8 @@ vim.api.nvim_create_autocmd("FileType", {
       local msg = ("\u{26A0} LSP no detectado para `%s`.\n"):format(ft)
       if ft == "kotlin" then
         msg = msg
-          .. "kotlin-language-server desactivado: incompatible con Neovim 0.12.\n"
-          .. "Para activarlo, edita lua/configs/lspconfig.lua y descomenta la linea."
+          .. "kotlin-language-server no arranco (workaround activo en lspconfig.lua).\n"
+          .. "Prueba :MasonInstall kotlin-language-server y :checkhealth vim.lsp."
       else
         msg = msg
           .. "Verifica que el servidor est\u{e9} instalado (:Mason)\n"
