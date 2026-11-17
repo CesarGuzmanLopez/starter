@@ -200,6 +200,26 @@ M.setup = function()
 
   jdtls.start_or_attach(config)
 
+  -- start_or_attach solo adjunta el buffer actual, y el plugin carga una vez
+  -- (lazy por ft): al abrir otro .java despues, el buffer quedaba solo con
+  -- null-ls y gd respondia "definition not supported". Este autocmd
+  -- re-adjunta cada buffer java reutilizando el cliente existente.
+  if not M._ft_autocmd then
+    M._ft_autocmd = true
+    vim.api.nvim_create_autocmd("FileType", {
+      group = vim.api.nvim_create_augroup("JdtlsFileType", { clear = true }),
+      pattern = "java",
+      callback = function(args)
+        vim.api.nvim_buf_call(args.buf, function()
+          local ok, err = pcall(M.setup)
+          if not ok then
+            vim.notify("[jdtls] " .. tostring(err):sub(1, 200), vim.log.levels.ERROR, { title = "LSP: java" })
+          end
+        end)
+      end,
+    })
+  end
+
   -- Si el archivo no esta en ningun sourcePath (proyecto sin importar),
   -- jdtls solo reporta "non-project file". Dispara el import una vez por
   -- sesion y avisa; el progreso se ve con fidget + :messages.
