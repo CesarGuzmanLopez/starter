@@ -24,6 +24,44 @@ return {
     base.sync_root_with_cwd = false
     base.respect_buf_cwd = false
     base.prefer_startup_root = true
+    -- Compacto: 1 espacio por nivel y sin marcadores de indentacion (los
+    -- arboles java con src/main/java/com/app/... se comian media ventana).
+    base.renderer = base.renderer or {}
+    base.renderer.indent_width = 1
+    base.renderer.indent_markers = { enable = false }
+    base.renderer.icons = base.renderer.icons or {}
+    base.renderer.icons.show = vim.tbl_extend("force", base.renderer.icons.show or {}, {
+      folder_arrow = true, -- chevron junto a la carpeta: se ve el nivel sin sangria
+    })
+    base.renderer.icons.glyphs = vim.tbl_extend("force", base.renderer.icons.glyphs or {}, {
+      folder_arrow = {
+        open = "",
+        closed = "",
+        empty = "",
+        empty_open = "",
+      },
+    })
+    base.view = vim.tbl_extend("force", base.view or {}, { width = 34 })
+    -- Crear rutas anidadas comodamente: el prompt de `a` acepta
+    -- "sub/dir/" (carpeta) y "sub/dir/Archivo.java" (archivo), creando los
+    -- directorios intermedios. Estos atajos lo dejan a un dedo, tanto dentro
+    -- del arbol como desde el buffer.
+    base.on_attach = function(bufnr)
+      local api = require "nvim-tree.api"
+      api.config.mappings.default_on_attach(bufnr)
+      local function map(lhs, fn, desc)
+        vim.keymap.set("n", lhs, fn, { buffer = bufnr, noremap = true, silent = true, desc = desc })
+      end
+      map("<leader>en", function()
+        api.fs.create()
+      end, "Nuevo: 'sub/dir/Archivo.java' o 'carpeta/'")
+      map("<leader>er", function()
+        api.fs.rename()
+      end, "Renombrar (ruta completa)")
+      map("<leader>eD", function()
+        api.fs.remove()
+      end, "Borrar nodo")
+    end
     -- Reveal al enfocar un archivo: con el arbol abierto, expande las carpetas
     -- hasta el archivo del buffer actual y lo selecciona. Si el arbol esta
     -- cerrado no hace nada (find_file hace return sin `open`). La raiz NO
