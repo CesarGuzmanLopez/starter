@@ -67,6 +67,6 @@ end
 -- read :h vim.lsp.config for changing options of lsp servers
 
 -- Verificador de arranque: si falta server/binario de
--- python/c++/kotlin/cmake/java/rust, error visible con :MasonInstall.
+-- python/c++/kotlin/cmake/java/rust, lo instala solo (:MasonInstall).
 -- No rompe el arranque, solo notifica una vez por sesion.
 pcall(require, "configs.lsp_verify")

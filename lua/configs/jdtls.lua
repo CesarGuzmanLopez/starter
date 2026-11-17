@@ -71,6 +71,27 @@ M.setup = function()
   local jdk_newest = jdk27 or jdk26 or jdk25 or jdk22 or jdk21 or jdk17
   local java_bin = jdk_newest and (jdk_newest .. "/bin/java") or "java"
 
+  -- Workspace por RAIZ del proyecto (no por cwd): dos sesiones sobre el
+  -- mismo proyecto compartian `-data` y el segundo jdtls no lograba el lock
+  -- (quedaba solo null-ls y `gd` fallaba). El basename se sanitiza.
+  local root_markers = {
+    "build.gradle",
+    "build.gradle.kts",
+    "pom.xml",
+    ".git",
+    "settings.gradle",
+    "settings.gradle.kts",
+  }
+  local root_finder = require("lspconfig.util").root_pattern(unpack(root_markers))
+  local bufname = vim.api.nvim_buf_get_name(0)
+  local project_root = root_finder(bufname ~= "" and bufname or vim.fn.getcwd())
+    or vim.fn.getcwd()
+  local clean_root = project_root:gsub("/+$", "")
+  local workspace_name = vim.fn.fnamemodify(clean_root, ":t"):gsub("[^%w_.-]", "_")
+  if workspace_name == "" then
+    workspace_name = "default"
+  end
+
   local config = {
     cmd = {
       java_bin,
@@ -82,21 +103,17 @@ M.setup = function()
       "-configuration",
       config_linux,
       "-data",
-      home .. "/.cache/jdtls/workspace/" .. vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t"),
+      home .. "/.cache/jdtls/workspace/" .. workspace_name,
     },
-    root_dir = require("lspconfig.util").root_pattern(
-      "build.gradle",
-      "build.gradle.kts",
-      "pom.xml",
-      ".git",
-      "settings.gradle",
-      "settings.gradle.kts"
-    ),
+    root_dir = root_finder,
     capabilities = capabilities,
     settings = {
       java = {
         configuration = {
-          updateBuildConfiguration = "interactive",
+          -- automatic: importa el proyecto Maven/Gradle sin prompt. Con
+          -- "interactive" el import quedaba pendiente y el classpath vacio
+          -- devolvia "no location found" en gd.
+          updateBuildConfiguration = "automatic",
           runtimes = {},
         },
         maven = {

@@ -1,6 +1,7 @@
 -- Verificador de LSP al arranque: python/c++/kotlin/cmake/java/rust.
--- Si falta el binario (Mason o sistema), error visible una vez por sesion
--- con el :MasonInstall correspondiente. No bloquea el arranque.
+-- Si falta el binario (Mason o sistema), lo instala solo con :MasonInstall
+-- (asincrono, no bloquea). Avisa una vez por sesion; al terminar, reabre
+-- el buffer para que el server arranque.
 local M = {}
 
 local REQUIRED = {
@@ -18,7 +19,7 @@ local function mason_bin_exists(bin)
 end
 
 function M.check()
-  local missing = {}
+  local missing, pkgs = {}, {}
   for lang, spec in pairs(REQUIRED) do
     local found = false
     for _, bin in ipairs(spec.bins) do
@@ -28,12 +29,27 @@ function M.check()
       end
     end
     if not found then
-      table.insert(missing, ("- %s: `%s` no ejecutable → :MasonInstall %s"):format(lang, spec.bins[1], spec.pkg))
+      table.insert(missing, ("- %s: `%s`"):format(lang, spec.bins[1]))
+      table.insert(pkgs, spec.pkg)
     end
   end
-  if #missing > 0 then
+  if #missing == 0 then
+    return
+  end
+  -- Autoinstalacion: MasonInstall es asincrono, no bloquea el arranque.
+  local ok = pcall(vim.cmd, "MasonInstall " .. table.concat(pkgs, " "))
+  if ok then
     vim.notify(
-      "LSP faltante:\n" .. table.concat(missing, "\n"),
+      "LSP instalando:\n" .. table.concat(missing, "\n") .. "\nReabre el buffer al terminar.",
+      vim.log.levels.WARN,
+      { title = "LSP: servers", timeout = 10000 }
+    )
+  else
+    vim.notify(
+      "LSP faltante (Mason no disponible):\n"
+        .. table.concat(missing, "\n")
+        .. "\nInstala a mano: :MasonInstall "
+        .. table.concat(pkgs, " "),
       vim.log.levels.ERROR,
       { title = "LSP: servers", timeout = 10000 }
     )
