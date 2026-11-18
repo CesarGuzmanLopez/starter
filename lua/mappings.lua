@@ -201,7 +201,7 @@ local function goto_definition()
   local bufnr = vim.api.nvim_get_current_buf()
   local enc = "utf-8"
   for _, c in ipairs(vim.lsp.get_clients({ bufnr = bufnr })) do
-    if c.supports_method("textDocument/definition") then
+    if c:supports_method("textDocument/definition", bufnr) then
       enc = c.offset_encoding
       break
     end
