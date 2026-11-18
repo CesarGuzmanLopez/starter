@@ -39,12 +39,17 @@ local lsp_filetypes = get_lsp_filetypes()
 vim.api.nvim_create_autocmd("FileType", {
   callback = function(args)
     local ft = vim.bo[args.buf].filetype
-    if not ft or ft == "" or not lsp_filetypes[ft] then return end
-
+    if not ft or ft == "" or not lsp_filetypes[ft] then
+      return
+    end
     vim.defer_fn(function()
-      if not vim.api.nvim_buf_is_valid(args.buf) then return end
-      local clients = vim.lsp.get_clients({ bufnr = args.buf })
-      if #clients > 0 then return end
+      if not vim.api.nvim_buf_is_valid(args.buf) then
+        return
+      end
+      local clients = vim.lsp.get_clients { bufnr = args.buf }
+      if #clients > 0 then
+        return
+      end
 
       local msg = ("\u{26A0} LSP no detectado para `%s`.\n"):format(ft)
       if ft == "kotlin" then
@@ -87,15 +92,18 @@ local function refresh_tree_git()
 end
 
 -- Recarga inmediata al volver al foco / entrar a un buffer / pausa.
-vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "WinEnter", "CursorHold", "CursorHoldI", "TermClose", "TermLeave" }, {
-  group = reload_group,
-  callback = function(args)
-    local buf = args.buf or vim.api.nvim_get_current_buf()
-    if vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].buftype == "" then
-      vim.cmd("checktime")
-    end
-  end,
-})
+vim.api.nvim_create_autocmd(
+  { "FocusGained", "BufEnter", "WinEnter", "CursorHold", "CursorHoldI", "TermClose", "TermLeave" },
+  {
+    group = reload_group,
+    callback = function(args)
+      local buf = args.buf or vim.api.nvim_get_current_buf()
+      if vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].buftype == "" then
+        vim.cmd "checktime"
+      end
+    end,
+  }
+)
 
 -- Timer: vigila TODOS los buffers cargados, aunque no tengan el foco. Con
 -- herramientas de IA que escriben archivos en segundo plano es la unica forma
@@ -206,7 +214,7 @@ vim.api.nvim_create_autocmd({ "BufReadPost", "FileType" }, {
 -- el modulo), re-aplica highlights para ver el cambio sin reiniciar.
 vim.api.nvim_create_autocmd("BufWritePost", {
   group = hl_group,
-  pattern = vim.fn.stdpath("config") .. "/lua/**/*.lua",
+  pattern = vim.fn.stdpath "config" .. "/lua/**/*.lua",
   callback = function()
     vim.schedule(apply_ui_highlights)
   end,
@@ -254,8 +262,10 @@ vim.api.nvim_create_autocmd("BufReadCmd", {
 
     -- Display image with kitten icat
     vim.fn.jobstart({
-      "kitten", "icat",
-      "--place", tostring(width) .. "x" .. tostring(height - 2) .. "@0x0",
+      "kitten",
+      "icat",
+      "--place",
+      tostring(width) .. "x" .. tostring(height - 2) .. "@0x0",
       "--transfer-mode=stream",
       file,
     }, { stdout_buffered = true })

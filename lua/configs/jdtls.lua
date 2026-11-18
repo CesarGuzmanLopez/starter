@@ -94,6 +94,27 @@ M.setup = function()
     workspace_name = "default"
   end
 
+  -- Lombok del proyecto (Maven) antes que el bundled de Mason: el bundled
+  -- (1.18.48+) corriendo sobre JDK 25+ genera constructor bodies flexibles
+  -- que JDT rechaza con source level 17 («Flexible Constructor Bodies is
+  -- only available with source level 25 and above»). El del proyecto coincide
+  -- con el del build (BOM Spring Boot) y genera codigo clasico.
+  local lombok_jar = jdtls_path .. "/lombok.jar"
+  do
+    local candidatos =
+      vim.fn.glob(home .. "/.m2/repository/org/projectlombok/lombok/*/lombok-*.jar", false, true)
+    local m2 = {}
+    for _, jar in ipairs(candidatos) do
+      if jar:match("lombok%-[%d%.]+%.jar$") then
+        table.insert(m2, jar)
+      end
+    end
+    table.sort(m2)
+    if #m2 > 0 then
+      lombok_jar = m2[#m2]
+    end
+  end
+
   local config = {
     cmd = {
       java_bin,
@@ -102,7 +123,7 @@ M.setup = function()
       "-Declipse.product=org.eclipse.jdt.ls.core.product",
       -- Lombok: sin el agente, jdtls no ve los getters/setters generados
       -- (@Data) y marca "The method getId() is undefined" en todo el codigo.
-      "-javaagent:" .. jdtls_path .. "/lombok.jar",
+      "-javaagent:" .. lombok_jar,
       "-jar",
       launcher,
       "-configuration",

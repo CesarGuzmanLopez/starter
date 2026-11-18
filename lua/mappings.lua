@@ -81,6 +81,9 @@ if telescope_ok then
   map("n", "<leader>ew", function()
     telescope.find_files({ cwd = project_root(), hidden = true, file_ignore_patterns = ignore })
   end, { desc = "Buscar por nombre de archivo (proyecto)" })
+  -- Recientes: fuera de NvimTree. Dentro del árbol <leader>er sigue siendo
+  -- renombrar (buffer-local en nvimtree.lua).
+  map("n", "<leader>er", telescope.oldfiles, { desc = "Archivos recientes" })
 end
 
 -------------------------------
@@ -116,7 +119,123 @@ end
 -------------------------------
 -- Linting (nvim-lint)
 -------------------------------
-map("n", "<leader>ll", function() require("lint").try_lint() end, { desc = "Lint current buffer" })
+map("n", "<leader>ll", function()
+  -- cwd = dir del archivo: el lint por stdin (eslint_d) resuelve su config
+  -- desde el cwd, no desde el archivo; con nvim abierto en la raíz del
+  -- monorepo el .eslintrc del front no se encontraba y el .ts se parseaba
+  -- como JS ("Parsing error: The keyword 'import' is reserved").
+  require("lint").try_lint(nil, { cwd = vim.fn.expand("%:p:h") })
+end, { desc = "Lint current buffer" })
+
+-------------------------------
+-- Navegar a definición con fallback a texto del proyecto
+-------------------------------
+-- gd primero vía LSP; si ningún servidor responde con ubicaciones y el cursor
+-- está sobre un string 'algo.clave' (típico de claves i18n en cualquier
+-- lenguaje: 'alert.call_911', "menu.emergency"...), busca el texto en el
+-- proyecto. Los strings literales no tienen definición para ningún LSP.
+-- Si el proyecto trae src/i18n/diccionario.ts se busca ahí directo;
+-- si no, grep repo-wide (ripgrep, respeta .gitignore).
+local function raiz_proyecto()
+  local dir = vim.fn.expand("%:p:h")
+  local git = vim.fn.systemlist("git -C " .. vim.fn.shellescape(dir) .. " rev-parse --show-toplevel")[1]
+  if vim.v.shell_error == 0 and git and git ~= "" then return git end
+  return vim.fn.getcwd()
+end
+
+local function diccionario_i18n()
+  local dir = vim.fn.expand("%:p:h")
+  for _ = 1, 8 do
+    local cand = dir .. "/src/i18n/diccionario.ts"
+    if vim.uv.fs_stat(cand) then return cand end
+    local parent = vim.fn.fnamemodify(dir, ":h")
+    if parent == dir then break end
+    dir = parent
+  end
+  return nil
+end
+
+local function buscar_clave_proyecto()
+  local cword = vim.fn.expand("<cWORD>")
+  local stripped = cword:gsub("^['\"]", ""):gsub("['\"]$", "")
+  if stripped == cword then return false end -- no era string entre comillas
+  local key = stripped:gsub("[,;]+$", "")
+  if not key:match("^[%w_]+%.[%w_.%-/]+$") then return false end
+  local dict = diccionario_i18n()
+  local ok, telescope = pcall(require, "telescope.builtin")
+  if ok then
+    if dict then
+      telescope.live_grep({ search_dirs = { vim.fn.fnamemodify(dict, ":h") }, default_text = key })
+    else
+      telescope.live_grep({
+        search_dirs = { raiz_proyecto() },
+        default_text = key,
+        additional_args = { "--fixed-strings" },
+      })
+    end
+    return true
+  end
+  if vim.fn.executable("rg") == 1 then
+    local raiz = dict and vim.fn.fnamemodify(dict, ":h") or raiz_proyecto()
+    local out = vim.fn.systemlist({ "rg", "--vimgrep", "--fixed-strings", "--smart-case", key, raiz })
+    if vim.v.shell_error ~= 0 or #out == 0 then
+      vim.notify("Sin resultados para '" .. key .. "'", vim.log.levels.INFO)
+      return true
+    end
+    local items = {}
+    for _, l in ipairs(out) do
+      local f, ln, col, txt = l:match("^(.-):(%d+):(%d+):(.*)$")
+      if f then
+        items[#items + 1] = { filename = f, lnum = tonumber(ln), col = tonumber(col), text = txt }
+      end
+    end
+    vim.fn.setqflist({}, " ", { title = "Texto '" .. key .. "'", items = items })
+    vim.cmd("copen")
+    return true
+  end
+  vim.notify("Instala telescope o ripgrep para buscar texto", vim.log.levels.WARN)
+  return true
+end
+
+local function goto_definition()
+  local bufnr = vim.api.nvim_get_current_buf()
+  local enc = "utf-8"
+  for _, c in ipairs(vim.lsp.get_clients({ bufnr = bufnr })) do
+    if c.supports_method("textDocument/definition") then
+      enc = c.offset_encoding
+      break
+    end
+  end
+  local params = vim.lsp.util.make_position_params(0, enc)
+  local found = {}
+  local resp = vim.lsp.buf_request_sync(bufnr, "textDocument/definition", params, 2000)
+  if resp then
+    for _, r in pairs(resp) do
+      local res = r.result
+      if type(res) == "table" then
+        if res.uri ~= nil or res.targetUri ~= nil then
+          found[#found + 1] = res
+        elseif #res > 0 then
+          vim.list_extend(found, res)
+        end
+      end
+    end
+  end
+  if #found == 1 then
+    vim.lsp.util.show_document(found[1], enc)
+    return
+  elseif #found > 1 then
+    vim.fn.setqflist({}, " ", {
+      title = "Definiciones LSP",
+      items = vim.lsp.util.locations_to_items(found, enc),
+    })
+    vim.cmd("copen")
+    return
+  end
+  if not buscar_clave_proyecto() then
+    vim.notify("Sin definición", vim.log.levels.INFO)
+  end
+end
 
 -------------------------------
 -- LSP keymaps de desarrollo (buffer-local)
@@ -131,7 +250,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
     end
 
     -- Navegacion: definicion, hover, referencias
-    bmap("n", "gd", vim.lsp.buf.definition, "Go to definition")
+    bmap("n", "gd", goto_definition, "Go to definition (LSP + i18n)")
     bmap("n", "gD", vim.lsp.buf.declaration, "Go to declaration")
     bmap("n", "K", vim.lsp.buf.hover, "Hover documentation")
     bmap("n", "gr", vim.lsp.buf.references, "References")
@@ -151,6 +270,19 @@ vim.api.nvim_create_autocmd("LspAttach", {
     end, "Rename symbol")
   end,
 })
+
+-------------------------------
+-- i18n: ir a la clave de traducción bajo el cursor
+-------------------------------
+-- En plantillas Angular las claves ('menu.emergency' | t) son strings
+-- literales: ningún LSP (ni angularls) las resuelve al diccionario.
+-- <leader>ti busca la clave en src/i18n/diccionario.ts del proyecto
+-- (sube directorios, soporta monorepo) con Telescope o vimgrep.
+map("n", "<leader>ti", function()
+  if not buscar_clave_proyecto() then
+    vim.notify("Sin clave bajo el cursor", vim.log.levels.WARN)
+  end
+end, { desc = "Buscar texto/clave en el proyecto" })
 
 -------------------------------
 -- Testing (neotest)

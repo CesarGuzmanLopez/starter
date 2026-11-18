@@ -143,6 +143,7 @@
 | `<leader>eb` | Buffers abiertos |
 | `<leader>ef` | Búsqueda difusa (texto) |
 | `<leader>ew` | Buscar por nombre de archivo |
+| `<leader>er` | Archivos recientes (en NvimTree: renombrar) |
 | `<leader>ll` | Lint del buffer |
 
 ### OpenCode (IA)

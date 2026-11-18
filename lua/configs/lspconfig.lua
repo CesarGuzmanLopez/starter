@@ -64,6 +64,57 @@ do
   end
 end
 
+-- angularls: prefiere el ngserver DEL PROYECTO (node_modules/.bin/ngserver)
+-- cuando existe, porque su major coincide con @angular/core del proyecto.
+-- El ngserver global de Mason (v22) sobre un proyecto v21 rompe el gd en
+-- expresiones de plantillas (isAlertActive, router.url, pipes). Con el
+-- binario local, cualquier proyecto Angular usa su propia versión.
+do
+  vim.lsp.config("angularls", {
+    cmd = function(dispatchers, config)
+      local fs, uv, fn = vim.fs, vim.uv, vim.fn
+      local root_dir = (config and config.root_dir) or fn.getcwd()
+      local node_paths = {}
+      local project_node = fs.joinpath(root_dir, "node_modules")
+      if uv.fs_stat(project_node) then table.insert(node_paths, project_node) end
+      local exe = fn.exepath "ngserver"
+      if exe and #exe > 0 then
+        local real = uv.fs_realpath(exe) or exe
+        local candidate = fs.normalize(fs.joinpath(fs.dirname(real), "../../.."))
+        if uv.fs_stat(candidate) then table.insert(node_paths, candidate) end
+      end
+      local ng_probe = table.concat(
+        vim
+          .iter(node_paths)
+          :map(function(p) return fs.joinpath(p, "@angular/language-server/node_modules") end)
+          :totable(),
+        ","
+      )
+      local bin = fs.joinpath(project_node, ".bin/ngserver")
+      if not uv.fs_stat(bin) then bin = "ngserver" end
+      local version = ""
+      local ok, content = pcall(fn.readblob, fs.joinpath(root_dir, "package.json"))
+      if ok and content then
+        local json = vim.json.decode(content) or {}
+        local v = ((json.dependencies or {})["@angular/core"])
+          or ((json.devDependencies or {})["@angular/core"])
+          or ""
+        version = v:match "%d+%.%d+%.%d+" or ""
+      end
+      return vim.lsp.rpc.start({
+        bin,
+        "--stdio",
+        "--tsProbeLocations",
+        table.concat(node_paths, ","),
+        "--ngProbeLocations",
+        ng_probe,
+        "--angularCoreVersion",
+        version,
+      }, dispatchers)
+    end,
+  })
+end
+
 -- NOTA: kotlin-language-server se habilita abajo con workaround
 -- workspace.configuration=false (ver bloque kotlin). Si falla, el verificador
 -- configs.lsp_verify avisa al arrancar.

@@ -95,6 +95,7 @@ Ver `AGENTS.md` para la lista completa. Aqui los mas usados:
 | Accion | Atajo |
 |--------|-------|
 | Buscar archivos | `<leader>ew` |
+| Recientes | `<leader>er` |
 | Buscar texto | `<leader>ef` |
 | Cerrar buffer | `:Q` o `<leader>x` |
 | Ir a definicion | `gd` |

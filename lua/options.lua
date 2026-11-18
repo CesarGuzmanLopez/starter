@@ -82,3 +82,12 @@ vim.opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
 vim.opt.pumheight = 12
 vim.opt.autoread = true -- recarga si otro programa toca el archivo
 vim.opt.updatetime = 500 -- CursorHold rapido: cambios externos se ven en vivo
+
+-- Indentación: siempre 2 espacios (igual que .editorconfig del monorepo,
+-- Prettier, fmt-maven-plugin google y ~/.vimrc). NvChad ya trae 2 por
+-- defecto; se deja explícito para que ningún plugin lo cambie.
+vim.opt.expandtab = true
+vim.opt.tabstop = 2
+vim.opt.shiftwidth = 2
+vim.opt.softtabstop = 2
+vim.opt.shiftround = true
